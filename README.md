@@ -41,7 +41,7 @@ npm start        # dev server → http://localhost:5173
 | [SceneryStack](https://scenerystack.org/) | ^3.0.0 | Simulation framework |
 | [Vite](https://vitejs.dev/) | ^8 | Build tool + dev server |
 | [TypeScript](https://www.typescriptlang.org/) | ^6 | Type-safe JavaScript |
-| [Biome](https://biomejs.dev/) | ^2.4 | Linting + formatting |
+| [Biome](https://biomejs.dev/) | ^2.5 | Linting + formatting |
 | [vite-plugin-pwa](https://vite-pwa-org.netlify.app/) | ^1 | PWA + service worker |
 
 ## License

@@ -33,6 +33,7 @@ import { StatusTextNode } from "./components/StatusTextNode";
 import { DragHandlerManager } from "./managers/DragHandlerManager";
 import { KeyboardHandlerManager } from "./managers/KeyboardHandlerManager";
 import { WaveManager } from "./managers/WaveManager";
+import { SimScreenSummaryContent } from "./SimScreenSummaryContent";
 import { Sound } from "./utils/Sound";
 
 // UI constants
@@ -120,9 +121,9 @@ export class SimScreenView extends ScreenView {
       tagName: "div",
       labelTagName: "h1",
       labelContent: StringManager.getInstance().getTitleStringProperty(),
-      // Add a high-level description for screen readers
-      descriptionContent:
-        "An interactive simulation of the Doppler Effect. Drag the source and observer to see how their relative motion affects the observed frequency. The simulation shows how sound waves change when objects move toward or away from each other. Use the control panel to adjust settings, toggle features, and select different scenarios. The graph display shows the frequency changes in real-time.",
+      // Localized, structured screen summary (replaces the previous hard-coded
+      // English descriptionContent). Current details are derived live from the model.
+      screenSummaryContent: new SimScreenSummaryContent(model),
       ...options,
     });
 
@@ -457,6 +458,16 @@ export class SimScreenView extends ScreenView {
       scenarioComboBoxNode.top = interfaceBounds.top + 10;
       scaleMarkNode.right = resetAllButtonNode.left - 30;
     });
+
+    // ── Accessibility: keyboard / reading traversal order ───────────────────────
+    // Make Tab/reading order deterministic: the play-area objects (draggable
+    // source and observer) before the controls. ScreenView throws if you set
+    // pdomOrder on itself, so use a wrapper Node.
+    this.addChild(
+      new Node({
+        pdomOrder: [this.objectLayer, this.controlLayer],
+      }),
+    );
   }
 
   /**

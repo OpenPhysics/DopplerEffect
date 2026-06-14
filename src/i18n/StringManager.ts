@@ -145,6 +145,15 @@ export class StringManager {
     return stringProperties.titleStringProperty;
   }
 
+  /**
+   * Accessibility (Interactive Description) StringProperties: the screen-summary
+   * regions and the live current-details template. See the shared OpenPhysics
+   * ACCESSIBILITY.md convention.
+   */
+  public getA11yStrings() {
+    return stringProperties.a11y;
+  }
+
   public getScenarioStrings() {
     return {
       freePlayStringProperty: stringProperties.scenarios.freePlayStringProperty,

@@ -100,5 +100,15 @@
     "observerReceding": "Stationary Source, Moving Observer (Receding)",
     "sameDirection": "Same Direction Motion",
     "perpendicular": "Perpendicular Motion"
+  },
+  "a11y": {
+    "screenSummary": {
+      "playArea": "The play area shows a sound source and an observer that can be dragged around. Circular wave fronts spread out from the source, and a graph displays the emitted and observed waveforms.",
+      "controlArea": "The controls set the emitted frequency and sound speed, choose preset scenarios, toggle the velocity arrows, line of sight, motion trails, grid, and microphone, and play or pause the simulation. A Reset All button returns the simulation to its starting state.",
+      "interactionHint": "Drag the source or observer, or load a scenario, then watch how their motion changes the observed frequency."
+    },
+    "currentDetails": "Emitted frequency {{emitted}} hertz, observed frequency {{observed}} hertz. The simulation is {{state}}.",
+    "playingLabel": "playing",
+    "pausedLabel": "paused"
   }
 }

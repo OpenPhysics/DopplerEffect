@@ -16,6 +16,14 @@ Interactive Doppler effect simulation: drag source and observer, visualize circu
 | Input | `DragHandlerManager.ts`, `KeyboardHandlerManager.ts` |
 | Colors | `DopplerEffectColors.ts`, `DopplerEffectNamespace.ts` |
 
+## Accessibility
+
+Follows the shared [OpenPhysics accessibility convention](https://github.com/OpenPhysics/OpenPhysics/blob/main/ACCESSIBILITY.md).
+`SimScreenView` registers `SimScreenSummaryContent` (live current-details: emitted/observed
+frequency + play state) via the `screenSummaryContent` super-option — replacing a former
+hard-coded English `descriptionContent` — and orders the PDOM through a wrapper `Node`. A11y
+strings live under the top-level `a11y` key in each locale JSON, via `StringManager.getA11yStrings()`.
+
 ## Physics
 
 Observed frequency: `f' = f * (v - vₒ) / (v - vₛ)` where `vₒ` and `vₛ` are velocity components along the line of sight.

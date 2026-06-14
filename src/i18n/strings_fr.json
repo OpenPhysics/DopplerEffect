@@ -100,5 +100,15 @@
     "observerReceding": "Émetteur immobile, Observateur en mouvement (Éloignement)",
     "sameDirection": "Mouvement dans la même direction",
     "perpendicular": "Mouvement perpendiculaire"
+  },
+  "a11y": {
+    "screenSummary": {
+      "playArea": "La zone de jeu montre une source sonore et un observateur que l'on peut déplacer. Des fronts d'onde circulaires se propagent depuis la source, et un graphique affiche les formes d'onde émise et observée.",
+      "controlArea": "Les commandes règlent la fréquence émise et la vitesse du son, choisissent des scénarios prédéfinis, activent les flèches de vitesse, la ligne de visée, les traînées de mouvement, la grille et le microphone, et lisent ou mettent en pause la simulation. Un bouton Tout réinitialiser ramène la simulation à son état initial.",
+      "interactionHint": "Déplacez la source ou l'observateur, ou chargez un scénario, puis observez comment leur mouvement modifie la fréquence observée."
+    },
+    "currentDetails": "Fréquence émise {{emitted}} hertz, fréquence observée {{observed}} hertz. La simulation est {{state}}.",
+    "playingLabel": "en cours",
+    "pausedLabel": "en pause"
   }
 }

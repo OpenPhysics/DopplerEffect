@@ -100,5 +100,15 @@
     "observerReceding": "Fuente estacionaria, observador en movimiento (alejándose)",
     "sameDirection": "Movimiento en la misma dirección",
     "perpendicular": "Movimiento perpendicular"
+  },
+  "a11y": {
+    "screenSummary": {
+      "playArea": "El área de juego muestra una fuente de sonido y un observador que se pueden arrastrar. Frentes de onda circulares se propagan desde la fuente, y una gráfica muestra las formas de onda emitida y observada.",
+      "controlArea": "Los controles ajustan la frecuencia emitida y la velocidad del sonido, eligen escenarios predefinidos, activan las flechas de velocidad, la línea de visión, las estelas de movimiento, la cuadrícula y el micrófono, y reproducen o pausan la simulación. Un botón Restablecer todo devuelve la simulación a su estado inicial.",
+      "interactionHint": "Arrastra la fuente o el observador, o carga un escenario, luego observa cómo su movimiento cambia la frecuencia observada."
+    },
+    "currentDetails": "Frecuencia emitida {{emitted}} hercios, frecuencia observada {{observed}} hercios. La simulación está {{state}}.",
+    "playingLabel": "en marcha",
+    "pausedLabel": "en pausa"
   }
 }

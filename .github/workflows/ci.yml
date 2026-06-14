@@ -24,17 +24,17 @@ permissions:
 
 jobs:
   ci:
-    uses: OpenPhysics/.github/.github/workflows/ci.yml@main
+    uses: OpenPhysics/Baton/.github/workflows/ci.yml@main
 
   compliance:
-    uses: OpenPhysics/.github/.github/workflows/shared-compliance-check.yml@main
+    uses: OpenPhysics/Baton/.github/workflows/shared-compliance-check.yml@main
     with:
       repo-name: DopplerEffect
 
   dependency-review:
     if: github.event_name == 'pull_request'
-    uses: OpenPhysics/.github/.github/workflows/shared-dependency-review.yml@main
+    uses: OpenPhysics/Baton/.github/workflows/shared-dependency-review.yml@main
 
   codeql:
-    uses: OpenPhysics/.github/.github/workflows/shared-codeql.yml@main
+    uses: OpenPhysics/Baton/.github/workflows/shared-codeql.yml@main
 

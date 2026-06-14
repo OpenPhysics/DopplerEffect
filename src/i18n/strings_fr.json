@@ -109,6 +109,12 @@
     },
     "currentDetails": "Fréquence émise {{emitted}} hertz, fréquence observée {{observed}} hertz. La simulation est {{state}}.",
     "playingLabel": "en cours",
-    "pausedLabel": "en pause"
+    "pausedLabel": "en pause",
+    "controls": {
+      "soundSource": "Source sonore",
+      "observer": "Observateur",
+      "scenarioSelector": "Sélecteur de scénario",
+      "microphone": "Microphone — faites glisser pour le repositionner"
+    }
   }
 }

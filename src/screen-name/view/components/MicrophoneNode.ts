@@ -18,6 +18,7 @@ import {
   type Vector2,
 } from "scenerystack";
 import DopplerEffectColors from "../../../DopplerEffectColors";
+import { StringManager } from "../../../i18n/StringManager";
 import { Sound } from "../utils/Sound";
 
 // Constants for microphone visualization and behavior
@@ -82,6 +83,9 @@ export class MicrophoneNode extends Node {
   ) {
     super({
       cursor: "pointer",
+      tagName: "div",
+      focusable: true,
+      accessibleName: StringManager.getInstance().getA11yStrings().controls.microphoneStringProperty,
     });
 
     this.modelViewTransform = modelViewTransform;

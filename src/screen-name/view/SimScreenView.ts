@@ -190,7 +190,7 @@ export class SimScreenView extends ScreenView {
       fillColorProperty: DopplerEffectColors.sourceColorProperty,
       velocityArrowColorProperty: DopplerEffectColors.sourceVelocityArrowColorProperty,
       trailColorProperty: DopplerEffectColors.sourceColorProperty,
-      accessibleName: "Sound source",
+      accessibleName: StringManager.getInstance().getA11yStrings().controls.soundSourceStringProperty,
     });
 
     this.observerView = new MoveableObjectView(this.modelViewTransform, {
@@ -199,7 +199,7 @@ export class SimScreenView extends ScreenView {
       fillColorProperty: DopplerEffectColors.observerColorProperty,
       velocityArrowColorProperty: DopplerEffectColors.observerVelocityArrowColorProperty,
       trailColorProperty: DopplerEffectColors.observerColorProperty,
-      accessibleName: "Observer",
+      accessibleName: StringManager.getInstance().getA11yStrings().controls.observerStringProperty,
     });
 
     // Create connecting line using the new ConnectingLineNode class
@@ -316,7 +316,9 @@ export class SimScreenView extends ScreenView {
       listStroke: DopplerEffectColors.textColorProperty,
       highlightFill: DopplerEffectColors.highlightColorProperty,
     });
-    scenarioComboBoxNode.setAccessibleName("Scenario selector");
+    scenarioComboBoxNode.setAccessibleName(
+      StringManager.getInstance().getA11yStrings().controls.scenarioSelectorStringProperty,
+    );
 
     // Add to control layer
     this.controlLayer.addChild(scenarioComboBoxNode);

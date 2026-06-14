@@ -10,6 +10,7 @@ import {
   Node,
   type ProfileColorProperty,
   type Property,
+  type TReadOnlyProperty,
   type Vector2,
 } from "scenerystack";
 import type { PositionHistoryPoint } from "../../model/SimModel";
@@ -30,7 +31,7 @@ type MoveableObjectViewOptions = {
   textColorProperty: ProfileColorProperty;
   velocityScale: number;
   trailWidth: number;
-  accessibleName: string;
+  accessibleName: string | TReadOnlyProperty<string>;
 };
 
 /**

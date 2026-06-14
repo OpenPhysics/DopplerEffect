@@ -109,6 +109,12 @@
     },
     "currentDetails": "Frecuencia emitida {{emitted}} hercios, frecuencia observada {{observed}} hercios. La simulación está {{state}}.",
     "playingLabel": "en marcha",
-    "pausedLabel": "en pausa"
+    "pausedLabel": "en pausa",
+    "controls": {
+      "soundSource": "Fuente de sonido",
+      "observer": "Observador",
+      "scenarioSelector": "Selector de escenario",
+      "microphone": "Micrófono — arrastra para reposicionar"
+    }
   }
 }

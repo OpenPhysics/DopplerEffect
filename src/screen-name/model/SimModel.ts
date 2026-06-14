@@ -14,6 +14,8 @@ import {
   Vector2,
 } from "scenerystack";
 import { StringManager } from "../../i18n/StringManager";
+import type { DopplerEffectPreferencesModel } from "../../preferences/DopplerEffectPreferencesModel";
+import dopplerEffectQueryParameters from "../../preferences/dopplerEffectQueryParameters";
 import { DopplerCalculator } from "./DopplerCalculator";
 import { MovableObject } from "./MovableObject";
 import { INITIAL_POSITIONS, PHYSICS, SCALE, SOUND_DATA, TIME_SPEED, TRAIL, type WaveformPoint } from "./SimConstants";
@@ -187,7 +189,10 @@ export class SimModel {
   /**
    * Constructor for the Doppler Effect SimModel
    */
-  public constructor() {
+  private readonly preferences: DopplerEffectPreferencesModel | undefined;
+
+  public constructor(preferences?: DopplerEffectPreferencesModel) {
+    this.preferences = preferences;
     // Initialize physics properties
     this.soundSpeedProperty = new NumberProperty(PHYSICS.SOUND_SPEED);
     this.emittedFrequencyProperty = new NumberProperty(PHYSICS.EMITTED_FREQ);
@@ -202,7 +207,7 @@ export class SimModel {
 
     // Initialize microphone properties
     this.microphonePositionProperty = new Property<Vector2>(new Vector2(0, 20));
-    this.microphoneEnabledProperty = new BooleanProperty(false);
+    this.microphoneEnabledProperty = new BooleanProperty(dopplerEffectQueryParameters.microphoneEnabled);
     this.waveDetectedProperty = new BooleanProperty(false);
 
     // Initialize simulation state
@@ -274,6 +279,9 @@ export class SimModel {
     // Reset microphone properties
     this.microphonePositionProperty.value = new Vector2(0, 20);
     this.microphoneEnabledProperty.reset();
+    if (this.preferences) {
+      this.microphoneEnabledProperty.value = this.preferences.microphoneEnabledProperty.value;
+    }
     this.waveDetectedProperty.value = false;
     this.lastWaveDetectionTime = 0;
 

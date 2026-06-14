@@ -154,6 +154,11 @@ export class StringManager {
     return stringProperties.a11y;
   }
 
+  /** Simulation-specific preference labels shown in Preferences → Simulation. */
+  public getPreferences() {
+    return stringProperties.preferences;
+  }
+
   public getScenarioStrings() {
     return {
       freePlayStringProperty: stringProperties.scenarios.freePlayStringProperty,

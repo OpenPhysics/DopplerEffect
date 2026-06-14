@@ -116,5 +116,9 @@
       "scenarioSelector": "Scenario selector",
       "microphone": "Microphone — drag to reposition"
     }
+  },
+  "preferences": {
+    "title": "Simulation",
+    "microphoneEnabled": "Microphone Enabled"
   }
 }

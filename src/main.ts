@@ -19,13 +19,19 @@ import { Tandem } from "scenerystack";
 import { onReadyToLaunch, PreferencesModel, Sim } from "scenerystack/sim";
 import DopplerEffectColors from "./DopplerEffectColors.js";
 import { StringManager } from "./i18n/StringManager.js";
+import { DopplerEffectPreferencesModel } from "./preferences/DopplerEffectPreferencesModel.js";
+import { DopplerEffectPreferencesNode } from "./preferences/DopplerEffectPreferencesNode.js";
 import { SimScreen } from "./screen-name/SimScreen.js";
 
 onReadyToLaunch(() => {
   const stringManager = StringManager.getInstance();
 
+  // Simulation-specific preferences; initial values come from dopplerEffectQueryParameters.
+  const dopplerEffectPreferences = new DopplerEffectPreferencesModel(Tandem.ROOT.createTandem("preferences"));
+
   const screens = [
     new SimScreen({
+      preferences: dopplerEffectPreferences,
       tandem: Tandem.ROOT.createTandem("simScreen"),
       backgroundColorProperty: DopplerEffectColors.backgroundColorProperty,
     }),
@@ -39,6 +45,13 @@ onReadyToLaunch(() => {
         supportsProjectorMode: true,
         // Enables keyboard-navigation highlight outlines
         supportsInteractiveHighlights: true,
+      },
+      simulationOptions: {
+        customPreferences: [
+          {
+            createContent: (tandem: Tandem) => new DopplerEffectPreferencesNode(dopplerEffectPreferences, tandem),
+          },
+        ],
       },
       localizationOptions: {
         // Adds a language picker in Preferences → Language

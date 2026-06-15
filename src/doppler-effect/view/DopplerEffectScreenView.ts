@@ -24,7 +24,7 @@ import { ConnectingLineNode } from "./components/ConnectingLineNode";
 import { ControlPanelNode } from "./components/ControlPanelNode";
 import { GraphDisplayNode } from "./components/GraphDisplayNode";
 import { GridNode } from "./components/GridNode";
-import { KeyboardShorcutsNode } from "./components/KeyboardShorcutsNode";
+import { KeyboardShortcutsNode } from "./components/KeyboardShortcutsNode";
 import { MicrophoneNode } from "./components/MicrophoneNode";
 import { MoveableObjectView } from "./components/MoveableObjectView";
 import { ScaleMarkNode } from "./components/ScaleMarkNode";
@@ -85,7 +85,7 @@ export class DopplerEffectScreenView extends ScreenView {
   private readonly statusDisplayNode: StatusTextNode;
   private readonly controlPanel: ControlPanelNode;
   private readonly gridNode: GridNode;
-  private readonly keyboardShorcutsNode: KeyboardShorcutsNode;
+  private readonly keyboardShortcutsNode: KeyboardShortcutsNode;
 
   // Managers
   private readonly waveManager: WaveManager;
@@ -372,12 +372,12 @@ export class DopplerEffectScreenView extends ScreenView {
     this.controlLayer.addChild(timeControlNode);
 
     // Create keyboard shortcuts node
-    this.keyboardShorcutsNode = new KeyboardShorcutsNode({
+    this.keyboardShortcutsNode = new KeyboardShortcutsNode({
       visibleProperty: this.keyboardHelpVisibleProperty,
       layoutBounds: this.layoutBounds,
     });
-    this.keyboardShorcutsNode.setAccessibleName("Keyboard shortcuts help");
-    this.controlLayer.addChild(this.keyboardShorcutsNode);
+    this.keyboardShortcutsNode.setAccessibleName("Keyboard shortcuts help");
+    this.controlLayer.addChild(this.keyboardShortcutsNode);
 
     // Setup keyboard handlers
     this.keyboardManager.attachKeyboardHandlers(

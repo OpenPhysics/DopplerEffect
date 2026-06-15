@@ -71,8 +71,9 @@ export class DopplerCalculator {
       if (wave.radius >= distanceToObserver) {
         // both in meters (m)
 
-        //TODO: this will not be correct if the sound speed is changed by the user,
-        // this only works for constant sound speed (over the course of the waves), not variable sound speed
+        // NOTE: this assumes a constant sound speed over the lifetime of a wave; it is not correct
+        // if the user changes the sound speed while waves are in flight. Tracked in
+        // https://github.com/OpenPhysics/DopplerEffect/issues/25
         // Calculate arrival time
         const travelTime = distanceToObserver / soundSpeed; // in seconds (s)
         const arrivalTime = wave.birthTime + travelTime; // in seconds (s)

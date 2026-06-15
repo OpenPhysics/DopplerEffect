@@ -17,6 +17,7 @@ import {
   Shape,
   type Vector2,
 } from "scenerystack";
+import { stepTimer } from "scenerystack/axon";
 import DopplerEffectColors from "../../../DopplerEffectColors";
 import { StringManager } from "../../../i18n/StringManager";
 import { Sound } from "../utils/Sound";
@@ -188,8 +189,9 @@ export class MicrophoneNode extends Node {
       // Play click sound
       this.clickSound.play();
 
-      // Hide ring after a short delay
-      setTimeout(() => {
+      // Hide ring after a short delay. Use stepTimer (not window.setTimeout) so the flash pauses
+      // with the sim and cannot fire after the node is removed from the scene graph.
+      stepTimer.setTimeout(() => {
         this.detectionRing.visible = false;
       }, MICROPHONE.DETECTION_FLASH_DURATION);
     }

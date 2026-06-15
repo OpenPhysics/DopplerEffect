@@ -1,5 +1,5 @@
 /**
- * KeyboardShorcutsNode.ts
+ * KeyboardShortcutsNode.ts
  *
  * Contains the keyboard shortcuts functionality for the Doppler Effect simulation.
  * Implements a structured help dialog with sections and rows for better organization.
@@ -23,7 +23,7 @@ import DopplerEffectColors from "../../../DopplerEffectColors";
 import { StringManager } from "../../../i18n/StringManager";
 
 // Configuration options for the keyboard shortcuts display
-type KeyboardShorcutsOptions = {
+type KeyboardShortcutsOptions = {
   visibleProperty: Property<boolean>;
   layoutBounds: Bounds2;
 };
@@ -33,16 +33,16 @@ const TEXT_MAX_WIDTH = 1000;
 /**
  * Component that renders the keyboard help instructions for the simulation in a structured format
  */
-export class KeyboardShorcutsNode extends Node {
+export class KeyboardShortcutsNode extends Node {
   // Store reference to visibility property
   private readonly visibilityControlProperty: Property<boolean>;
 
   /**
-   * Constructor for the KeyboardShorcutsNode
+   * Constructor for the KeyboardShortcutsNode
    *
    * @param options - Configuration options
    */
-  constructor(options: KeyboardShorcutsOptions) {
+  constructor(options: KeyboardShortcutsOptions) {
     super({
       visibleProperty: options.visibleProperty,
     });
@@ -179,7 +179,8 @@ export class KeyboardShorcutsNode extends Node {
     );
 
     // Create standard basic actions section (includes tab navigation, space/enter, etc.)
-    //TODO, figure out how to pass textcolorProperty to inner content
+    // NOTE: theming the inner text of this standard section with the sim's text color profile is
+    // not yet wired up. Tracked in https://github.com/OpenPhysics/DopplerEffect/issues/26
     const basicActionsSection = new BasicActionsKeyboardHelpSection({
       withCheckboxContent: true,
       textMaxWidth: TEXT_MAX_WIDTH,

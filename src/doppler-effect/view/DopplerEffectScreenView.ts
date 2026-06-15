@@ -17,8 +17,8 @@ import {
 import { ScreenView, type ScreenViewOptions } from "scenerystack/sim";
 import DopplerEffectColors from "../../DopplerEffectColors";
 import { StringManager } from "../../i18n/StringManager";
-import { SCALE } from "../model/SimConstants";
-import { Scenario, type SimModel } from "../model/SimModel";
+import { SCALE } from "../model/DopplerEffectConstants";
+import { type DopplerEffectModel, Scenario } from "../model/DopplerEffectModel";
 import { ConnectingLineNode } from "./components/ConnectingLineNode";
 // Import components directly
 import { ControlPanelNode } from "./components/ControlPanelNode";
@@ -29,11 +29,11 @@ import { MicrophoneNode } from "./components/MicrophoneNode";
 import { MoveableObjectView } from "./components/MoveableObjectView";
 import { ScaleMarkNode } from "./components/ScaleMarkNode";
 import { StatusTextNode } from "./components/StatusTextNode";
+import { DopplerEffectScreenSummaryContent } from "./DopplerEffectScreenSummaryContent";
 // Import managers directly
 import { DragHandlerManager } from "./managers/DragHandlerManager";
 import { KeyboardHandlerManager } from "./managers/KeyboardHandlerManager";
 import { WaveManager } from "./managers/WaveManager";
-import { SimScreenSummaryContent } from "./SimScreenSummaryContent";
 import { Sound } from "./utils/Sound";
 
 // UI constants
@@ -60,9 +60,9 @@ const UI = {
  * - Model space: Physical coordinates in meters (±100m in both dimensions)
  * - View space: Screen coordinates in pixels
  */
-export class SimScreenView extends ScreenView {
+export class DopplerEffectScreenView extends ScreenView {
   // Model reference
-  private readonly model: SimModel;
+  private readonly model: DopplerEffectModel;
 
   // Model-view transform
   private readonly modelViewTransform: ModelViewTransform2;
@@ -113,9 +113,9 @@ export class SimScreenView extends ScreenView {
   private readonly interfaceBoundsProperty: TReadOnlyProperty<Bounds2>;
 
   /**
-   * Constructor for the Doppler Effect SimScreenView
+   * Constructor for the Doppler Effect DopplerEffectScreenView
    */
-  public constructor(model: SimModel, options?: ScreenViewOptions) {
+  public constructor(model: DopplerEffectModel, options?: ScreenViewOptions) {
     // Call super first before accessing any instance properties
     super({
       tagName: "div",
@@ -123,7 +123,7 @@ export class SimScreenView extends ScreenView {
       labelContent: StringManager.getInstance().getTitleStringProperty(),
       // Localized, structured screen summary (replaces the previous hard-coded
       // English descriptionContent). Current details are derived live from the model.
-      screenSummaryContent: new SimScreenSummaryContent(model),
+      screenSummaryContent: new DopplerEffectScreenSummaryContent(model),
       ...options,
     });
 

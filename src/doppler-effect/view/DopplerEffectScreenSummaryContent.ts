@@ -1,5 +1,5 @@
 /**
- * SimScreenSummaryContent.ts
+ * DopplerEffectScreenSummaryContent.ts
  *
  * Accessible screen summary (SceneryStack Interactive Description) for the Doppler
  * Effect screen. Describes the play area and controls, gives an interaction hint,
@@ -7,16 +7,18 @@
  * and observed frequencies and the play/pause state).
  *
  * Follows the OpenPhysics accessibility convention; see the canonical
- * TemplateSingleSim/SimScreenSummaryContent.ts.
+ * TemplateSingleSim/DopplerEffectScreenSummaryContent.ts.
  */
+
 import { DerivedProperty } from "scenerystack/axon";
+import { toFixed } from "scenerystack/dot";
 import { StringUtils } from "scenerystack/phetcommon";
 import { ScreenSummaryContent } from "scenerystack/sim";
 import { StringManager } from "../../i18n/StringManager";
-import type { SimModel } from "../model/SimModel";
+import type { DopplerEffectModel } from "../model/DopplerEffectModel";
 
-export class SimScreenSummaryContent extends ScreenSummaryContent {
-  public constructor(model: SimModel) {
+export class DopplerEffectScreenSummaryContent extends ScreenSummaryContent {
+  public constructor(model: DopplerEffectModel) {
     const a11y = StringManager.getInstance().getA11yStrings();
 
     const currentDetailsProperty = new DerivedProperty(
@@ -30,8 +32,8 @@ export class SimScreenSummaryContent extends ScreenSummaryContent {
       ],
       (template, playingLabel, pausedLabel, emitted, observed, playing) =>
         StringUtils.fillIn(template, {
-          emitted: emitted.toFixed(1),
-          observed: observed.toFixed(1),
+          emitted: toFixed(emitted, 1),
+          observed: toFixed(observed, 1),
           state: playing ? playingLabel : pausedLabel,
         }),
     );

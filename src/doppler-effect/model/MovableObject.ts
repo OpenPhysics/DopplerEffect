@@ -1,5 +1,5 @@
 import { BooleanProperty, Property, Vector2 } from "scenerystack";
-import { PHYSICS, TRAIL } from "./SimConstants";
+import { PHYSICS, TRAIL } from "./DopplerEffectConstants";
 
 /**
  * Position history point interface

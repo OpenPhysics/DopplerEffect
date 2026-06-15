@@ -1,14 +1,14 @@
 import { Screen, type ScreenOptions } from "scenerystack/sim";
 import type { DopplerEffectPreferencesModel } from "../preferences/DopplerEffectPreferencesModel.js";
-import { SimModel } from "./model/SimModel.js";
+import { DopplerEffectModel } from "./model/DopplerEffectModel.js";
 import { DopplerEffectKeyboardHelpContent } from "./view/DopplerEffectKeyboardHelpContent.js";
-import { SimScreenView } from "./view/SimScreenView.js";
+import { DopplerEffectScreenView } from "./view/DopplerEffectScreenView.js";
 
-export class SimScreen extends Screen<SimModel, SimScreenView> {
+export class DopplerEffectScreen extends Screen<DopplerEffectModel, DopplerEffectScreenView> {
   public constructor(options: ScreenOptions & { preferences: DopplerEffectPreferencesModel }) {
     super(
-      () => new SimModel(options.preferences),
-      (model) => new SimScreenView(model),
+      () => new DopplerEffectModel(options.preferences),
+      (model) => new DopplerEffectScreenView(model),
       {
         ...options,
         createKeyboardHelpNode: () => new DopplerEffectKeyboardHelpContent(),

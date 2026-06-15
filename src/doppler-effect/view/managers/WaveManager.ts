@@ -6,8 +6,8 @@
 
 import { Circle, type Color, type ModelViewTransform2, type Node, type ProfileColorProperty } from "scenerystack";
 import DopplerEffectColors from "../../../DopplerEffectColors";
-import { WAVE } from "../../model/SimConstants";
-import type { Wave } from "../../model/SimModel";
+import { WAVE } from "../../model/DopplerEffectConstants";
+import type { Wave } from "../../model/DopplerEffectModel";
 
 /**
  * Manages the visualization of sound waves

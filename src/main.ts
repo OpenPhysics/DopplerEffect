@@ -18,10 +18,10 @@ import "./brand.js";
 import { Tandem } from "scenerystack";
 import { onReadyToLaunch, PreferencesModel, Sim } from "scenerystack/sim";
 import DopplerEffectColors from "./DopplerEffectColors.js";
+import { DopplerEffectScreen } from "./doppler-effect/DopplerEffectScreen.js";
 import { StringManager } from "./i18n/StringManager.js";
 import { DopplerEffectPreferencesModel } from "./preferences/DopplerEffectPreferencesModel.js";
 import { DopplerEffectPreferencesNode } from "./preferences/DopplerEffectPreferencesNode.js";
-import { SimScreen } from "./screen-name/SimScreen.js";
 
 onReadyToLaunch(() => {
   const stringManager = StringManager.getInstance();
@@ -30,7 +30,7 @@ onReadyToLaunch(() => {
   const dopplerEffectPreferences = new DopplerEffectPreferencesModel(Tandem.ROOT.createTandem("preferences"));
 
   const screens = [
-    new SimScreen({
+    new DopplerEffectScreen({
       preferences: dopplerEffectPreferences,
       tandem: Tandem.ROOT.createTandem("simScreen"),
       backgroundColorProperty: DopplerEffectColors.backgroundColorProperty,

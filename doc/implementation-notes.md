@@ -21,7 +21,7 @@ A coordinate transformation system maps between model space (physical units) and
 
 ### Core Model Design
 
-The `SimModel` class serves as the central coordinator, connecting specialized components:
+The `DopplerEffectModel` class serves as the central coordinator, connecting specialized components:
 
 ### Component Specialization
 
@@ -51,7 +51,7 @@ this.sourcePositionProperty = this.source.positionProperty;
 this.emittedFrequencyProperty = new NumberProperty(PHYSICS.EMITTED_FREQ);
 ```
 
-The majority of the Physics constants have been hoisted in `SimConstants.ts`
+The majority of the Physics constants have been hoisted in `DopplerEffectConstants.ts`
 
 We use a step function with scaled time:
 
@@ -93,9 +93,9 @@ For the Waves components, we have created an ObservableArray. In some cases, we 
 
 ## View Components
 
-### SimScreenView as Coordinator
+### DopplerEffectScreenView as Coordinator
 
-The `SimScreenView` coordinates all visual elements and user interactions. Visual elements are organized in layers for proper stacking:
+The `DopplerEffectScreenView` coordinates all visual elements and user interactions. Visual elements are organized in layers for proper stacking:
 
 ```typescript
 [this.waveLayer, this.objectLayer, this.graphLayer, this.controlLayer].forEach(

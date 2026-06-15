@@ -1,5 +1,5 @@
 import { Vector2 } from "scenerystack";
-import type { Wave } from "./SimModel";
+import type { Wave } from "./DopplerEffectModel";
 
 /**
  * DopplerCalculator handles the physics calculations for the Doppler effect.

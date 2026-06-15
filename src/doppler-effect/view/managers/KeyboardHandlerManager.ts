@@ -5,7 +5,7 @@
  */
 
 import { type Node, type Property, type SceneryEvent, Vector2 } from "scenerystack";
-import { Scenario } from "../../model/SimModel";
+import { Scenario } from "../../model/DopplerEffectModel";
 
 /**
  * Callback type for keyboard handling events

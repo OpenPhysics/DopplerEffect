@@ -17,8 +17,16 @@ import { StringManager } from "../../i18n/StringManager";
 import type { DopplerEffectPreferencesModel } from "../../preferences/DopplerEffectPreferencesModel";
 import dopplerEffectQueryParameters from "../../preferences/dopplerEffectQueryParameters";
 import { DopplerCalculator } from "./DopplerCalculator";
+import {
+  INITIAL_POSITIONS,
+  PHYSICS,
+  SCALE,
+  SOUND_DATA,
+  TIME_SPEED,
+  TRAIL,
+  type WaveformPoint,
+} from "./DopplerEffectConstants";
 import { MovableObject } from "./MovableObject";
-import { INITIAL_POSITIONS, PHYSICS, SCALE, SOUND_DATA, TIME_SPEED, TRAIL, type WaveformPoint } from "./SimConstants";
 import { WaveformManager } from "./WaveformManager";
 import { WaveGenerator } from "./WaveGenerator";
 
@@ -104,7 +112,7 @@ export class Scenario extends EnumerationValue {
  * This model is the main coordinator for the simulation, connecting the various
  * specialized classes that handle different aspects of the simulation.
  */
-export class SimModel {
+export class DopplerEffectModel {
   // Properties for physics simulation
   public readonly soundSpeedProperty: NumberProperty; // in meters per second (m/s)
   public readonly emittedFrequencyProperty: NumberProperty; // in Hertz (Hz)
@@ -187,7 +195,7 @@ export class SimModel {
   private waveformUpdateCounter: number = 0;
 
   /**
-   * Constructor for the Doppler Effect SimModel
+   * Constructor for the Doppler Effect DopplerEffectModel
    */
   private readonly preferences: DopplerEffectPreferencesModel | undefined;
 

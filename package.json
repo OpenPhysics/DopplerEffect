@@ -24,6 +24,7 @@
     "start": "vite",
     "dev": "vite",
     "build": "tsc && vite build",
+    "build:single": "tsc && vite build --mode single",
     "preview": "vite preview",
     "lint": "biome check .",
     "format": "biome format --write .",

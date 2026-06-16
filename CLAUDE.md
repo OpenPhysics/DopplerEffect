@@ -18,7 +18,7 @@ Interactive Doppler effect simulation: drag source and observer, visualize circu
 
 ## Accessibility
 
-Follows the shared [OpenPhysics accessibility convention](https://github.com/OpenPhysics/OpenPhysics/blob/main/ACCESSIBILITY.md).
+Follows the shared [OpenPhysics accessibility convention](https://github.com/OpenPhysics/Baton/blob/main/ACCESSIBILITY.md).
 `DopplerEffectScreenView` registers `DopplerEffectScreenSummaryContent` (live current-details: emitted/observed
 frequency + play state) via the `screenSummaryContent` super-option — replacing a former
 hard-coded English `descriptionContent` — and orders the PDOM through a wrapper `Node`. A11y

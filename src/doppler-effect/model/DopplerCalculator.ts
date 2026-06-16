@@ -54,12 +54,14 @@ export class DopplerCalculator {
    * @param waves Array of all waves
    * @param observerPosition Current observer position in meters (m)
    * @param soundSpeed Current speed of sound in meters per second (m/s)
+   * @param simulationTime Current simulation time in seconds (s)
    * @returns Array of waves at observer with arrival times in seconds (s)
    */
   public findWavesAtObserver(
     waves: Wave[],
     observerPosition: Vector2,
     soundSpeed: number,
+    simulationTime: number,
   ): Array<{ wave: Wave; arrivalTime: number }> {
     const wavesAtObserver: Array<{ wave: Wave; arrivalTime: number }> = [];
 
@@ -71,12 +73,16 @@ export class DopplerCalculator {
       if (wave.radius >= distanceToObserver) {
         // both in meters (m)
 
-        // NOTE: this assumes a constant sound speed over the lifetime of a wave; it is not correct
-        // if the user changes the sound speed while waves are in flight. Tracked in
-        // https://github.com/OpenPhysics/DopplerEffect/issues/25
-        // Calculate arrival time
-        const travelTime = distanceToObserver / soundSpeed; // in seconds (s)
-        const arrivalTime = wave.birthTime + travelTime; // in seconds (s)
+        // wave.radius is integrated step-by-step with the actual sound speed at each step
+        // (see WaveGenerator.updateWaves), so it is the true distance the wavefront has
+        // traveled even if the sound speed changed during the wave's lifetime. The overshoot
+        // (radius beyond the observer) is therefore the distance traveled *since* arrival, a
+        // short recent interval over which the current sound speed is an accurate estimate.
+        // This makes the reconstructed arrival time robust to mid-flight sound-speed changes,
+        // while reducing to birthTime + distance / soundSpeed when the speed is constant.
+        const overshoot = wave.radius - distanceToObserver; // in meters (m)
+        const timeSinceArrival = overshoot / soundSpeed; // in seconds (s)
+        const arrivalTime = simulationTime - timeSinceArrival; // in seconds (s)
 
         wavesAtObserver.push({ wave, arrivalTime }); // arrivalTime in seconds (s)
       }

@@ -555,6 +555,7 @@ export class DopplerEffectModel {
         this.waves,
         this.observerPositionProperty.value,
         this.soundSpeedProperty.value,
+        this.simulationTimeProperty.value,
       );
 
       // If no waves have reached observer yet, clear observed waveform

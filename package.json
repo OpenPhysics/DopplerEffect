@@ -30,6 +30,8 @@
     "format": "biome format --write .",
     "fix": "biome check --write .",
     "check": "tsc --noEmit && tsc -p tsconfig.scripts.json --noEmit",
+    "release": "npm run check && npm run lint && npm run build && npm version patch && git push && git push --tags",
+    "watch": "tsc --watch",
     "icons": "tsx scripts/generate-icons.ts",
     "clean": "rm -rf dist",
     "prepare": "git rev-parse --is-inside-work-tree >/dev/null 2>&1 && git config core.hooksPath .githooks || true"

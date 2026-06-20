@@ -611,7 +611,12 @@ export class DopplerEffectModel {
    * Configure velocity settings for a specific scenario
    */
   private configureScenarioVelocities(scenario: Scenario): void {
-    const config = SCENARIO_CONFIGS.get(scenario) ?? SCENARIO_CONFIGS.get(Scenario.FREE_PLAY)!;
+    const config = SCENARIO_CONFIGS.get(scenario) ?? {
+      sourceVelocity: new Vector2(0, 0),
+      observerVelocity: new Vector2(0, 0),
+      sourceMoving: false,
+      observerMoving: false,
+    };
     this.sourceVelocityProperty.value = config.sourceVelocity.copy();
     this.observerVelocityProperty.value = config.observerVelocity.copy();
     this.sourceMovingProperty.value = config.sourceMoving;

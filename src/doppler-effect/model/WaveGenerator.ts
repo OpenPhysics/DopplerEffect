@@ -18,6 +18,11 @@ export class WaveGenerator {
   private lastWaveTime: number = 0; // in seconds (s)
   private waveHistory: Wave[] = []; // History of waves for time reversal
 
+  // Microphone detection state
+  private lastDetectionTime: number = 0;
+  private static readonly DETECTION_COOLDOWN = 0.01; // seconds between detections
+  private static readonly DETECTION_TOLERANCE = 2; // meters
+
   /**
    * Create a new WaveGenerator
    */
@@ -94,10 +99,31 @@ export class WaveGenerator {
   }
 
   /**
+   * Detect whether a wave front is currently crossing a given position.
+   * Returns true at most once per DETECTION_COOLDOWN interval.
+   * @param position Position to check in meters (m)
+   * @param currentTime Absolute simulation time in seconds (s)
+   */
+  public detectWaveAt(position: Vector2, currentTime: number): boolean {
+    if (currentTime - this.lastDetectionTime < WaveGenerator.DETECTION_COOLDOWN) {
+      return false;
+    }
+    for (let i = 0; i < this.waves.length; i++) {
+      const wave = this.waves.get(i);
+      if (Math.abs(position.distance(wave.position) - wave.radius) < WaveGenerator.DETECTION_TOLERANCE) {
+        this.lastDetectionTime = currentTime;
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
    * Reset the wave generator state
    */
   public reset(): void {
     this.lastWaveTime = 0;
+    this.lastDetectionTime = 0;
     this.waves.clear();
     this.waveHistory = [];
   }

@@ -36,8 +36,9 @@ export class MovableObject {
   /**
    * Update position based on velocity and elapsed time
    * @param dt Elapsed time in seconds (s)
+   * @param currentTime Absolute simulation time in seconds (s)
    */
-  public updatePosition(dt: number): void {
+  public updatePosition(dt: number, currentTime: number): void {
     if (this.movingProperty.value) {
       const position = this.positionProperty.value; // in meters (m)
       const velocity = this.velocityProperty.value; // in meters per second (m/s)
@@ -54,16 +55,14 @@ export class MovableObject {
     }
 
     // Update position history for trail
-    this.updatePositionHistory(dt);
+    this.updatePositionHistory(currentTime);
   }
 
   /**
    * Update position history for trail
-   * @param dt Elapsed time in seconds (s)
+   * @param currentTime Absolute simulation time in seconds (s)
    */
-  private updatePositionHistory(dt: number): void {
-    const currentTime = this.lastTrailSampleTime + dt;
-
+  private updatePositionHistory(currentTime: number): void {
     // Only sample at specified intervals
     if (currentTime - this.lastTrailSampleTime >= TRAIL.SAMPLE_INTERVAL) {
       // Record position

@@ -23,10 +23,9 @@ import {
   SCALE,
   SOUND_DATA,
   TIME_SPEED,
-  TRAIL,
   type WaveformPoint,
 } from "./DopplerEffectConstants";
-import { MovableObject } from "./MovableObject";
+import { MovableObject, type PositionHistoryPoint } from "./MovableObject";
 import { WaveformManager } from "./WaveformManager";
 import { WaveGenerator } from "./WaveGenerator";
 
@@ -46,11 +45,8 @@ export type WaveDetection = {
   detectionTime: number;
 };
 
-// Position history points type
-export type PositionHistoryPoint = {
-  position: Vector2;
-  timestamp: number;
-};
+// Position history points type — canonical definition lives in MovableObject.ts
+export type { PositionHistoryPoint } from "./MovableObject";
 
 // Simulation state history type for time reversal
 export type SimulationState = {
@@ -106,6 +102,79 @@ export class Scenario extends EnumerationValue {
   public static readonly enumeration = new Enumeration(Scenario);
 }
 
+type ScenarioConfig = {
+  readonly sourceVelocity: Vector2;
+  readonly observerVelocity: Vector2;
+  readonly sourceMoving: boolean;
+  readonly observerMoving: boolean;
+};
+
+const SCENARIO_CONFIGS = new Map<Scenario, ScenarioConfig>([
+  [
+    Scenario.FREE_PLAY,
+    {
+      sourceVelocity: new Vector2(0, 0),
+      observerVelocity: new Vector2(0, 0),
+      sourceMoving: false,
+      observerMoving: false,
+    },
+  ],
+  [
+    Scenario.SOURCE_APPROACHING,
+    {
+      sourceVelocity: new Vector2(100, 0),
+      observerVelocity: new Vector2(0, 0),
+      sourceMoving: true,
+      observerMoving: false,
+    },
+  ],
+  [
+    Scenario.SOURCE_RECEDING,
+    {
+      sourceVelocity: new Vector2(-100, 0),
+      observerVelocity: new Vector2(0, 0),
+      sourceMoving: true,
+      observerMoving: false,
+    },
+  ],
+  [
+    Scenario.OBSERVER_APPROACHING,
+    {
+      sourceVelocity: new Vector2(0, 0),
+      observerVelocity: new Vector2(-100, 0),
+      sourceMoving: false,
+      observerMoving: true,
+    },
+  ],
+  [
+    Scenario.OBSERVER_RECEDING,
+    {
+      sourceVelocity: new Vector2(0, 0),
+      observerVelocity: new Vector2(100, 0),
+      sourceMoving: false,
+      observerMoving: true,
+    },
+  ],
+  [
+    Scenario.SAME_DIRECTION,
+    {
+      sourceVelocity: new Vector2(100, 0),
+      observerVelocity: new Vector2(100, 0),
+      sourceMoving: true,
+      observerMoving: true,
+    },
+  ],
+  [
+    Scenario.PERPENDICULAR,
+    {
+      sourceVelocity: new Vector2(0, 100),
+      observerVelocity: new Vector2(0, 0),
+      sourceMoving: true,
+      observerMoving: false,
+    },
+  ],
+]);
+
 /**
  * Model for the Doppler Effect simulation
  *
@@ -124,8 +193,6 @@ export class DopplerEffectModel {
   // Microphone properties
   public readonly microphonePositionProperty: Property<Vector2>; // Vector2 position of microphone
   public readonly microphoneEnabledProperty: BooleanProperty; // Whether microphone is enabled
-  private lastWaveDetectionTime: number = 0; // Time of last wave detection
-  private readonly waveDetectionCooldown: number = 0.01; // Cooldown between detections (s)
   public readonly waveDetectedProperty: BooleanProperty; // Emits when a wave is detected
 
   // Source and observer objects
@@ -142,11 +209,6 @@ export class DopplerEffectModel {
 
   // Distance between source and observer
   public readonly sourceObserverDistanceProperty: TReadOnlyProperty<number>;
-
-  // Position history for trails
-  private sourcePositionHistory: PositionHistoryPoint[] = [];
-  private observerPositionHistory: PositionHistoryPoint[] = [];
-  private lastTrailSampleTime: number = 0;
 
   // Simulation state properties
   public readonly simulationTimeProperty: NumberProperty; // in seconds (s)
@@ -184,11 +246,11 @@ export class DopplerEffectModel {
 
   // Expose position history for view access
   public get sourceTrail(): PositionHistoryPoint[] {
-    return this.sourcePositionHistory;
+    return this.source.getTrailPoints();
   }
 
   public get observerTrail(): PositionHistoryPoint[] {
-    return this.observerPositionHistory;
+    return this.observer.getTrailPoints();
   }
 
   // Waveform update counter
@@ -291,9 +353,8 @@ export class DopplerEffectModel {
       this.microphoneEnabledProperty.value = this.preferences.microphoneEnabledProperty.value;
     }
     this.waveDetectedProperty.value = false;
-    this.lastWaveDetectionTime = 0;
 
-    // Reset source and observer
+    // Reset source and observer (also clears their trail history)
     this.source.reset(INITIAL_POSITIONS.SOURCE);
     this.observer.reset(INITIAL_POSITIONS.OBSERVER);
 
@@ -301,10 +362,6 @@ export class DopplerEffectModel {
     this.sourceVelocityProperty.reset();
     this.observerVelocityProperty.reset();
 
-    // Clear position history
-    this.sourcePositionHistory = [];
-    this.observerPositionHistory = [];
-    this.lastTrailSampleTime = 0;
     this.waveformUpdateCounter = 0;
 
     // Clear simulation state history
@@ -349,25 +406,23 @@ export class DopplerEffectModel {
 
     // Update simulation time
     this.simulationTimeProperty.value += modelDt; // in seconds (s)
+    const currentTime = this.simulationTimeProperty.value;
 
     // Store simulation state for time reversal
     this.storeSimulationState();
 
-    // Update positions
-    this.source.updatePosition(modelDt);
-    this.observer.updatePosition(modelDt);
-
-    // Record position history for trails
-    this.updatePositionHistory();
+    // Update positions (also records trail history internally)
+    this.source.updatePosition(modelDt, currentTime);
+    this.observer.updatePosition(modelDt, currentTime);
 
     // Generate and update waves
     this.waveGenerator.generateWaves();
-    this.waveGenerator.updateWaves(this.simulationTimeProperty.value, modelDt);
+    this.waveGenerator.updateWaves(currentTime, modelDt);
 
     // Check for waves at microphone
-    if (this.microphoneEnabledProperty.value) {
-      this.detectWavesAtMicrophone();
-    }
+    this.waveDetectedProperty.value =
+      this.microphoneEnabledProperty.value &&
+      this.waveGenerator.detectWaveAt(this.microphonePositionProperty.value, currentTime);
 
     // Calculate Doppler effect and update waveforms
     this.updateWaveforms(modelDt);
@@ -474,59 +529,6 @@ export class DopplerEffectModel {
   }
 
   /**
-   * Update position history for source and observer
-   * This method records positions at regular intervals and maintains a fixed-size history
-   */
-  private updatePositionHistory(): void {
-    const currentTime = this.simulationTimeProperty.value;
-
-    // Only sample at specified intervals
-    if (currentTime - this.lastTrailSampleTime >= TRAIL.SAMPLE_INTERVAL) {
-      // Record source position
-      this.sourcePositionHistory.push({
-        position: this.sourcePositionProperty.value.copy(),
-        timestamp: currentTime,
-      });
-
-      // Record observer position
-      this.observerPositionHistory.push({
-        position: this.observerPositionProperty.value.copy(),
-        timestamp: currentTime,
-      });
-
-      // Update last sample time
-      this.lastTrailSampleTime = currentTime;
-
-      // Remove old positions based on age
-      this.prunePositionHistory();
-    }
-  }
-
-  /**
-   * Remove old positions from history that exceed the maximum age or count
-   */
-  private prunePositionHistory(): void {
-    const currentTime = this.simulationTimeProperty.value;
-    const maxAge = currentTime - TRAIL.MAX_AGE;
-
-    // Prune source trail
-    while (
-      this.sourcePositionHistory.length > TRAIL.MAX_POINTS ||
-      (this.sourcePositionHistory[0] !== undefined && this.sourcePositionHistory[0].timestamp < maxAge)
-    ) {
-      this.sourcePositionHistory.shift();
-    }
-
-    // Prune observer trail
-    while (
-      this.observerPositionHistory.length > TRAIL.MAX_POINTS ||
-      (this.observerPositionHistory[0] !== undefined && this.observerPositionHistory[0].timestamp < maxAge)
-    ) {
-      this.observerPositionHistory.shift();
-    }
-  }
-
-  /**
    * Update waveforms and calculate Doppler effect
    * @param dt Elapsed model time in seconds (s)
    */
@@ -607,67 +609,18 @@ export class DopplerEffectModel {
 
   /**
    * Configure velocity settings for a specific scenario
-   * @param scenario - the scenario to configure
-   * @private
    */
   private configureScenarioVelocities(scenario: Scenario): void {
-    switch (scenario) {
-      case Scenario.SOURCE_APPROACHING:
-        // Source moves toward a stationary observer
-        this.sourceVelocityProperty.value = new Vector2(100, 0); // Positive x = moving right (toward observer)
-        this.observerVelocityProperty.value = new Vector2(0, 0);
-        this.sourceMovingProperty.value = true;
-        this.observerMovingProperty.value = false;
-        break;
-
-      case Scenario.SOURCE_RECEDING:
-        // Source moves away from a stationary observer
-        this.sourceVelocityProperty.value = new Vector2(-100, 0); // Negative x = moving left (away from observer)
-        this.observerVelocityProperty.value = new Vector2(0, 0);
-        this.sourceMovingProperty.value = true;
-        this.observerMovingProperty.value = false;
-        break;
-
-      case Scenario.OBSERVER_APPROACHING:
-        // Observer moves toward a stationary source
-        this.sourceVelocityProperty.value = new Vector2(0, 0);
-        this.observerVelocityProperty.value = new Vector2(-100, 0);
-        this.sourceMovingProperty.value = false;
-        this.observerMovingProperty.value = true;
-        break;
-
-      case Scenario.OBSERVER_RECEDING:
-        // Observer moves away from a stationary source
-        this.sourceVelocityProperty.value = new Vector2(0, 0);
-        this.observerVelocityProperty.value = new Vector2(100, 0);
-        this.sourceMovingProperty.value = false;
-        this.observerMovingProperty.value = true;
-        break;
-
-      case Scenario.SAME_DIRECTION:
-        // Both source and observer moving in the same direction at same speed
-        this.sourceVelocityProperty.value = new Vector2(100, 0);
-        this.observerVelocityProperty.value = new Vector2(100, 0);
-        this.sourceMovingProperty.value = true;
-        this.observerMovingProperty.value = true;
-        break;
-
-      case Scenario.PERPENDICULAR:
-        // Source moving perpendicular to the line connecting with observer
-        this.sourceVelocityProperty.value = new Vector2(0, 100);
-        this.observerVelocityProperty.value = new Vector2(0, 0);
-        this.sourceMovingProperty.value = true;
-        this.observerMovingProperty.value = false;
-        break;
-
-      default:
-        // Free play mode - no initial velocities
-        this.sourceVelocityProperty.value = new Vector2(0, 0);
-        this.observerVelocityProperty.value = new Vector2(0, 0);
-        this.sourceMovingProperty.value = false;
-        this.observerMovingProperty.value = false;
-        break;
-    }
+    const config = SCENARIO_CONFIGS.get(scenario) ?? {
+      sourceVelocity: new Vector2(0, 0),
+      observerVelocity: new Vector2(0, 0),
+      sourceMoving: false,
+      observerMoving: false,
+    };
+    this.sourceVelocityProperty.value = config.sourceVelocity.copy();
+    this.observerVelocityProperty.value = config.observerVelocity.copy();
+    this.sourceMovingProperty.value = config.sourceMoving;
+    this.observerMovingProperty.value = config.observerMoving;
   }
 
   /**
@@ -688,41 +641,6 @@ export class DopplerEffectModel {
 
     // Configure velocities for the specific scenario
     this.configureScenarioVelocities(scenario);
-  }
-
-  /**
-   * Detect waves crossing the microphone position
-   */
-  private detectWavesAtMicrophone(): void {
-    const currentTime = this.simulationTimeProperty.value;
-
-    // Skip if we're still in cooldown
-    if (currentTime - this.lastWaveDetectionTime < this.waveDetectionCooldown) {
-      this.waveDetectedProperty.value = false;
-      return;
-    }
-
-    // Reset detection flag
-    this.waveDetectedProperty.value = false;
-
-    // Check all waves - iterating through ObservableArray
-    for (let i = 0; i < this.waves.length; i++) {
-      const wave = this.waves.get(i);
-
-      // Calculate distance from wave center to microphone
-      const distance = this.microphonePositionProperty.value.distance(wave.position);
-
-      // Determine if wave front is crossing the microphone position
-      const waveFrontRadius = wave.radius;
-      const tolerance = 2; // Detection tolerance in meters
-
-      if (Math.abs(distance - waveFrontRadius) < tolerance) {
-        // Wave detected at microphone
-        this.lastWaveDetectionTime = currentTime;
-        this.waveDetectedProperty.value = true;
-        break; // Only detect one wave per frame
-      }
-    }
   }
 
   /**

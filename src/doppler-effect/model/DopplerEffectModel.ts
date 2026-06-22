@@ -48,14 +48,16 @@ export type WaveDetection = {
 // Position history points type — canonical definition lives in MovableObject.ts
 export type { PositionHistoryPoint } from "./MovableObject";
 
-// Simulation state history type for time reversal
+// Simulation state history type for time reversal.
+// Waves are intentionally not snapshotted here: wave restoration is handled by
+// WaveGenerator's own history (see restoreSimulationState), so the source/observer
+// kinematic state plus the timestamp is all that needs to be retained.
 export type SimulationState = {
   time: number;
   sourcePosition: Vector2;
   observerPosition: Vector2;
   sourceVelocity: Vector2;
   observerVelocity: Vector2;
-  waves: Wave[];
 };
 
 export class Scenario extends EnumerationValue {
@@ -308,7 +310,11 @@ export class DopplerEffectModel {
       },
     );
 
-    // Create specialized component classes
+    // Create specialized component classes. waveformManager and dopplerCalculator
+    // are constructed first because the WaveGenerator below closes over waveformManager.
+    this.waveformManager = new WaveformManager(SOUND_DATA.ARRAY_SIZE);
+    this.dopplerCalculator = new DopplerCalculator();
+
     this.waveGenerator = new WaveGenerator(
       this.waves,
       () => this.simulationTimeProperty.value,
@@ -318,9 +324,6 @@ export class DopplerEffectModel {
       () => this.soundSpeedProperty.value,
       () => this.waveformManager.getEmittedPhase(),
     );
-
-    this.waveformManager = new WaveformManager(SOUND_DATA.ARRAY_SIZE);
-    this.dopplerCalculator = new DopplerCalculator();
 
     // Add listeners
     this.scenarioProperty.lazyLink((scenario) => {
@@ -458,21 +461,13 @@ export class DopplerEffectModel {
    * Store the current simulation state for time reversal
    */
   private storeSimulationState(): void {
-    // Create a deep copy of the current state
+    // Create a deep copy of the current kinematic state
     const currentState: SimulationState = {
       time: this.simulationTimeProperty.value,
       sourcePosition: this.sourcePositionProperty.value.copy(),
       observerPosition: this.observerPositionProperty.value.copy(),
       sourceVelocity: this.sourceVelocityProperty.value.copy(),
       observerVelocity: this.observerVelocityProperty.value.copy(),
-      waves: this.waves.map((wave) => ({
-        position: wave.position.copy(),
-        radius: wave.radius,
-        birthTime: wave.birthTime,
-        sourceVelocity: wave.sourceVelocity.copy(),
-        sourceFrequency: wave.sourceFrequency,
-        phaseAtEmission: wave.phaseAtEmission,
-      })),
     };
 
     // Add to history
@@ -537,7 +532,7 @@ export class DopplerEffectModel {
     const timeSpeedValue = this.getTimeSpeedValue();
 
     // Control how often we accumulate new waveform data points based on time speed
-    this.waveformUpdateCounter = (this.waveformUpdateCounter || 0) + 1;
+    this.waveformUpdateCounter += 1;
 
     // Calculate update interval as reciprocal of time speed factor
     // When time speed is low (0.25), update every 4 frames
@@ -641,12 +636,5 @@ export class DopplerEffectModel {
 
     // Configure velocities for the specific scenario
     this.configureScenarioVelocities(scenario);
-  }
-
-  /**
-   * Get the distance between the source and observer in meters
-   */
-  public getSourceObserverDistance(): number {
-    return this.sourcePositionProperty.value.distance(this.observerPositionProperty.value);
   }
 }

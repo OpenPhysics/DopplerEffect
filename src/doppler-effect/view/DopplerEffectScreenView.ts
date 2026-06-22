@@ -129,6 +129,9 @@ export class DopplerEffectScreenView extends ScreenView {
 
     this.model = model;
 
+    // Localized accessible names for the play-area and control nodes
+    const a11yControls = StringManager.getInstance().getA11yStrings().controls;
+
     // Create model-view transform - y-axis is inverted and centered on the screen
     this.modelViewTransform = ModelViewTransform2.createSinglePointScaleInvertedYMapping(
       new Vector2(0, 0),
@@ -168,7 +171,7 @@ export class DopplerEffectScreenView extends ScreenView {
       majorGridSize: 1000, // 1000 meters between major grid lines
       minorLinesPerMajorLine: 4, // 4 minor lines between each major line
     });
-    this.gridNode.setAccessibleName("Grid lines showing distance scale");
+    this.gridNode.setAccessibleName(a11yControls.gridStringProperty);
 
     // Add grid to the scene - behind the waves
     this.insertChild(0, this.gridNode);
@@ -233,7 +236,7 @@ export class DopplerEffectScreenView extends ScreenView {
       this.model.waveDetectedProperty,
       new Property(this.modelViewTransform.viewToModelBounds(this.layoutBounds)),
     );
-    this.microphoneNode.setAccessibleName("Microphone");
+    this.microphoneNode.setAccessibleName(a11yControls.microphoneStringProperty);
     this.objectLayer.addChild(this.microphoneNode);
 
     // Initialize managers
@@ -260,7 +263,7 @@ export class DopplerEffectScreenView extends ScreenView {
       graphMargin: UI.GRAPH_MARGIN,
       graphSpacing: UI.GRAPH_SPACING,
     });
-    this.graphDisplayNode.setAccessibleName("Frequency graphs");
+    this.graphDisplayNode.setAccessibleName(a11yControls.frequencyGraphsStringProperty);
     this.graphLayer.addChild(this.graphDisplayNode);
 
     // Create status text display
@@ -279,7 +282,7 @@ export class DopplerEffectScreenView extends ScreenView {
         graphSpacing: UI.GRAPH_SPACING,
       },
     );
-    this.statusDisplayNode.setAccessibleName("Status information");
+    this.statusDisplayNode.setAccessibleName(a11yControls.statusInformationStringProperty);
     this.statusDisplayNode.setAriaRole("status");
     this.controlLayer.addChild(this.statusDisplayNode);
 
@@ -300,7 +303,7 @@ export class DopplerEffectScreenView extends ScreenView {
         graphBottom: this.graphDisplayNode.observedGraphBottom,
       },
     );
-    this.controlPanel.setAccessibleName("Control panel");
+    this.controlPanel.setAccessibleName(a11yControls.controlPanelStringProperty);
     this.controlLayer.addChild(this.controlPanel);
 
     // Create scenario items for the combo box
@@ -331,14 +334,14 @@ export class DopplerEffectScreenView extends ScreenView {
         this.reset();
       },
     });
-    resetAllButtonNode.setAccessibleName("Reset simulation");
+    resetAllButtonNode.setAccessibleName(a11yControls.resetSimulationStringProperty);
     this.controlLayer.addChild(resetAllButtonNode);
 
     // Create scale mark node to show model-to-view scale
     const scaleMarkNode = new ScaleMarkNode(this.modelViewTransform, this.visibleValuesProperty, {
       scaleModelLength: 1000, // 1000 meters scale for better visibility
     });
-    scaleMarkNode.setAccessibleName("Scale: 1000 meters");
+    scaleMarkNode.setAccessibleName(a11yControls.scaleMarkStringProperty);
 
     // Position the scale mark
     scaleMarkNode.top = this.modelViewTransform.modelToViewY(-2000);
@@ -368,7 +371,7 @@ export class DopplerEffectScreenView extends ScreenView {
         },
       },
     });
-    timeControlNode.setAccessibleName("Simulation speed control");
+    timeControlNode.setAccessibleName(a11yControls.simulationSpeedStringProperty);
     this.controlLayer.addChild(timeControlNode);
 
     // Create keyboard shortcuts node
@@ -376,7 +379,7 @@ export class DopplerEffectScreenView extends ScreenView {
       visibleProperty: this.keyboardHelpVisibleProperty,
       layoutBounds: this.layoutBounds,
     });
-    this.keyboardShortcutsNode.setAccessibleName("Keyboard shortcuts help");
+    this.keyboardShortcutsNode.setAccessibleName(a11yControls.keyboardShortcutsStringProperty);
     this.controlLayer.addChild(this.keyboardShortcutsNode);
 
     // Setup keyboard handlers
@@ -514,13 +517,10 @@ export class DopplerEffectScreenView extends ScreenView {
    * Add model listeners
    */
   private addModelListeners(): void {
-    // Update view whenever position or velocity changes
-    const updateOnChange = () => this.updateView();
-
-    this.model.sourcePositionProperty.link(updateOnChange);
-    this.model.observerPositionProperty.link(updateOnChange);
-    this.model.sourceVelocityProperty.link(updateOnChange);
-    this.model.observerVelocityProperty.link(updateOnChange);
+    // Per-frame rendering is driven by step() (called every animation frame by the
+    // framework), so positions, velocities and trails are repainted there. Linking
+    // updateView() to each of the position/velocity properties as well would repaint
+    // the whole scene several extra times per simulation step for no visible benefit.
 
     // Listen for changes to wave collection
     this.model.waves.addItemAddedListener((wave) => {

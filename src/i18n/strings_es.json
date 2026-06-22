@@ -114,7 +114,15 @@
       "soundSource": "Fuente de sonido",
       "observer": "Observador",
       "scenarioSelector": "Selector de escenario",
-      "microphone": "Micrófono — arrastra para reposicionar"
+      "microphone": "Micrófono — arrastra para reposicionar",
+      "grid": "Líneas de cuadrícula que muestran la escala de distancia",
+      "frequencyGraphs": "Gráficas de frecuencia",
+      "statusInformation": "Información de estado",
+      "controlPanel": "Panel de control",
+      "resetSimulation": "Restablecer la simulación",
+      "scaleMark": "Marca de escala que muestra 1000 metros",
+      "simulationSpeed": "Control de velocidad de simulación",
+      "keyboardShortcuts": "Ayuda de atajos de teclado"
     }
   },
   "preferences": {

@@ -26,6 +26,17 @@ jobs:
   ci:
     uses: OpenPhysics/Baton/.github/workflows/ci.yml@main
 
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+
   compliance:
     uses: OpenPhysics/Baton/.github/workflows/shared-compliance-check.yml@main
     with:

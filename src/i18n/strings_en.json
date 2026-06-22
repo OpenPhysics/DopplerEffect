@@ -114,7 +114,15 @@
       "soundSource": "Sound source",
       "observer": "Observer",
       "scenarioSelector": "Scenario selector",
-      "microphone": "Microphone — drag to reposition"
+      "microphone": "Microphone — drag to reposition",
+      "grid": "Grid lines showing distance scale",
+      "frequencyGraphs": "Frequency graphs",
+      "statusInformation": "Status information",
+      "controlPanel": "Control panel",
+      "resetSimulation": "Reset simulation",
+      "scaleMark": "Scale marker showing 1000 meters",
+      "simulationSpeed": "Simulation speed control",
+      "keyboardShortcuts": "Keyboard shortcuts help"
     }
   },
   "preferences": {

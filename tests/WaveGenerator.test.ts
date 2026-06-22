@@ -86,6 +86,95 @@ describe("WaveGenerator.generateWaves", () => {
   });
 });
 
+describe("WaveGenerator.detectWaveAt", () => {
+  const soundSpeed = 343;
+  // ~60 fps step: front advances soundSpeed * dt ~= 5.7 m, larger than the
+  // legacy ±2 m detection band — the case that previously failed to detect.
+  const dt = 1 / 60;
+
+  function makeGenerator(waves: ReturnType<typeof makeFakeWaveArray>, time: () => number) {
+    return new WaveGenerator(
+      waves,
+      time,
+      () => new Vector2(0, 0),
+      () => new Vector2(0, 0),
+      () => 10,
+      () => soundSpeed,
+      () => 0,
+    );
+  }
+
+  it("detects a fast-expanding front that steps over the old tolerance band", () => {
+    let time = 0;
+    const waves = makeFakeWaveArray();
+    const generator = makeGenerator(waves, () => time);
+
+    // Wave emitted at origin; microphone 100 m away.
+    const micPosition = new Vector2(100, 0);
+    waves.add({
+      position: new Vector2(0, 0),
+      radius: 0,
+      birthTime: 0,
+      sourceVelocity: new Vector2(0, 0),
+      sourceFrequency: 10,
+      phaseAtEmission: 0,
+    });
+
+    // Advance the front frame by frame; it should be detected on exactly the
+    // frame where it crosses 100 m, never skipping past it.
+    let detected = false;
+    for (let i = 1; i <= 1200; i++) {
+      time = i * dt;
+      waves.get(0).radius += dt * soundSpeed;
+      if (generator.detectWaveAt(micPosition, time, dt)) {
+        detected = true;
+        break;
+      }
+    }
+    expect(detected).toBe(true);
+  });
+
+  it("does not detect before the front reaches the position", () => {
+    const time = 0.1;
+    const waves = makeFakeWaveArray();
+    const generator = makeGenerator(waves, () => time);
+
+    waves.add({
+      position: new Vector2(0, 0),
+      radius: 10, // front at 10 m
+      birthTime: 0,
+      sourceVelocity: new Vector2(0, 0),
+      sourceFrequency: 10,
+      phaseAtEmission: 0,
+    });
+
+    // Microphone well beyond the front and beyond the per-step advance.
+    expect(generator.detectWaveAt(new Vector2(100, 0), time, dt)).toBe(false);
+  });
+
+  it("respects the detection cooldown", () => {
+    let time = 0;
+    const waves = makeFakeWaveArray();
+    const generator = makeGenerator(waves, () => time);
+
+    const micPosition = new Vector2(50, 0);
+    waves.add({
+      position: new Vector2(0, 0),
+      radius: 50, // sitting exactly on the microphone
+      birthTime: 0,
+      sourceVelocity: new Vector2(0, 0),
+      sourceFrequency: 10,
+      phaseAtEmission: 0,
+    });
+
+    time = 0.02; // beyond the 0.01 s cooldown from the initial 0
+    expect(generator.detectWaveAt(micPosition, time, dt)).toBe(true);
+    // Within the 0.01 s cooldown of the previous detection -> suppressed.
+    time = 0.025;
+    expect(generator.detectWaveAt(micPosition, time, dt)).toBe(false);
+  });
+});
+
 describe("WaveGenerator.updateWaves", () => {
   it("expands wave radius by soundSpeed * dt", () => {
     let time = 0;

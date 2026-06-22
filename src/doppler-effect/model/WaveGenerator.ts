@@ -99,18 +99,36 @@ export class WaveGenerator {
   }
 
   /**
-   * Detect whether a wave front is currently crossing a given position.
+   * Detect whether a wave front passes through a given position during the current step.
+   *
+   * Rather than checking whether a front is momentarily within a fixed tolerance band
+   * (which a fast-expanding front can step right over between frames — e.g. at 343 m/s
+   * and 60 fps a front advances ~5.7 m per frame, larger than the detection band), this
+   * detects the front *crossing* the position: the front was inside the position last
+   * step (radius < distance) and has reached or passed it this step (radius >= distance).
+   * A small static tolerance is kept as a fallback for the dt ~ 0 case (paused/stepped).
+   *
    * Returns true at most once per DETECTION_COOLDOWN interval.
    * @param position Position to check in meters (m)
    * @param currentTime Absolute simulation time in seconds (s)
+   * @param modelDt Elapsed model time for this step in seconds (s)
    */
-  public detectWaveAt(position: Vector2, currentTime: number): boolean {
+  public detectWaveAt(position: Vector2, currentTime: number, modelDt: number): boolean {
     if (currentTime - this.lastDetectionTime < WaveGenerator.DETECTION_COOLDOWN) {
       return false;
     }
+    // Distance the wave front advanced during this step (meters)
+    const stepAdvance = modelDt * this.getSoundSpeed();
     for (let i = 0; i < this.waves.length; i++) {
       const wave = this.waves.get(i);
-      if (Math.abs(position.distance(wave.position) - wave.radius) < WaveGenerator.DETECTION_TOLERANCE) {
+      const distance = position.distance(wave.position);
+      const previousRadius = wave.radius - stepAdvance;
+      // True if the expanding front swept across the position during this step,
+      // or (fallback) is essentially sitting on it when no time elapsed.
+      if (
+        (previousRadius < distance && distance <= wave.radius) ||
+        Math.abs(distance - wave.radius) < WaveGenerator.DETECTION_TOLERANCE
+      ) {
         this.lastDetectionTime = currentTime;
         return true;
       }

@@ -425,7 +425,7 @@ export class DopplerEffectModel {
     // Check for waves at microphone
     this.waveDetectedProperty.value =
       this.microphoneEnabledProperty.value &&
-      this.waveGenerator.detectWaveAt(this.microphonePositionProperty.value, currentTime);
+      this.waveGenerator.detectWaveAt(this.microphonePositionProperty.value, currentTime, modelDt);
 
     // Calculate Doppler effect and update waveforms
     this.updateWaveforms(modelDt);

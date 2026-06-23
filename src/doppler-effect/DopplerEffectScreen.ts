@@ -1,3 +1,4 @@
+import { type EmptySelfOptions, optionize } from "scenerystack/phet-core";
 import { Screen, type ScreenOptions } from "scenerystack/sim";
 import type { DopplerEffectPreferencesModel } from "../preferences/DopplerEffectPreferencesModel.js";
 import { DopplerEffectModel } from "./model/DopplerEffectModel.js";
@@ -9,10 +10,12 @@ export class DopplerEffectScreen extends Screen<DopplerEffectModel, DopplerEffec
     super(
       () => new DopplerEffectModel(options.preferences),
       (model) => new DopplerEffectScreenView(model),
-      {
-        ...options,
-        createKeyboardHelpNode: () => new DopplerEffectKeyboardHelpContent(),
-      },
+      optionize<ScreenOptions, EmptySelfOptions, ScreenOptions>()(
+        {
+          createKeyboardHelpNode: () => new DopplerEffectKeyboardHelpContent(),
+        },
+        options,
+      ),
     );
   }
 }

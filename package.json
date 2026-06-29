@@ -43,7 +43,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.1",
-    "@types/node": "^26.0.0",
+    "@types/node": "^26.0.1",
     "jsdom": "^29.1.1",
     "png-to-ico": "^3.0.1",
     "sharp": "^0.35.2",

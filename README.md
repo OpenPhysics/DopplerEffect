@@ -10,7 +10,7 @@ how observed sound frequency shifts when source and observer move relative to ea
 - Adjustable emitted frequency and speed of sound
 - Keyboard controls (WASD / arrows), pause/resume, and motion trails
 - Velocity vectors, microphone listen mode, and numerical readouts
-- English and French UI, projector mode, and installable PWA
+- English, Spanish, and French UI, projector mode, and installable PWA
 
 ## Quick Start
 

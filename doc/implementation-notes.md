@@ -106,7 +106,7 @@ The `DopplerEffectScreenView` coordinates all visual elements and user interacti
 Specialized manager classes handle specific visualization aspects:
 
 1. **WaveManager**: Visualizes propagating waves
-2. **TrailManager**: Renders position history trails
+2. **TrailPath** (in `MoveableObjectView.ts`): Renders position history trails for source and observer
 3. **DragHandlerManager**: Manages user drag interactions
 4. **KeyboardHandlerManager**: Processes keyboard controls
 

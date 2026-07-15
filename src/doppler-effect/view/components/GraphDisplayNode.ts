@@ -194,7 +194,7 @@ export class GraphDisplayNode extends Node {
   /**
    * Get the right edge position of the graph
    */
-  public get right(): number {
+  public override get right(): number {
     return this.emittedGraph.right;
   }
 

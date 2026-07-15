@@ -508,7 +508,7 @@ export class DopplerEffectScreenView extends ScreenView {
   /**
    * Main step function called each frame
    */
-  public step(): void {
+  public override step(): void {
     // Update view to match model
     this.updateView();
   }

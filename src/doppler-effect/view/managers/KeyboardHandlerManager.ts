@@ -4,8 +4,24 @@
  * Manages keyboard input handlers for the Doppler Effect simulation.
  */
 
-import { type Node, type Property, type SceneryEvent, Vector2 } from "scenerystack";
+import { type Property, Vector2 } from "scenerystack";
 import { Scenario } from "../../model/DopplerEffectModel";
+
+/** Minimal numeric range shape (satisfied by RangeWithValue). */
+type NumericRange = { min: number; max: number };
+
+/**
+ * Whether keyboard events originating from an editable/text control should be
+ * ignored so that global shortcuts don't fire while the user is typing.
+ */
+function isEditableTarget(target: EventTarget | null): boolean {
+  const element = target as HTMLElement | null;
+  if (!element) {
+    return false;
+  }
+  const tag = element.tagName;
+  return tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || element.isContentEditable === true;
+}
 
 /**
  * Callback type for keyboard handling events
@@ -35,10 +51,13 @@ const SCENARIO_BY_KEY: Record<string, Scenario> = {
  * Manager for handling keyboard input
  */
 export class KeyboardHandlerManager {
+  // Stored so the global listener can be removed and re-attachment is idempotent
+  // (attaching twice would otherwise stack duplicate listeners that never get freed).
+  private windowKeydownListener: ((event: KeyboardEvent) => void) | null = null;
+
   /**
    * Attach keyboard event handlers
    *
-   * @param targetNode - Node to attach keyboard listeners to
    * @param callbacks - Callback functions for various keyboard actions
    * @param playProperty - Property for simulation play state
    * @param sourceVelocityProperty - Model property for source velocity
@@ -47,12 +66,13 @@ export class KeyboardHandlerManager {
    * @param observerMovingProperty - Model property for observer moving state
    * @param emittedFrequencyProperty - Model property for emitted frequency
    * @param soundSpeedProperty - Model property for sound speed
+   * @param frequencyRange - Allowed range for the emitted frequency (Hz)
+   * @param soundSpeedRange - Allowed range for the sound speed (m/s)
    * @param microphoneEnabledProperty - Model property for microphone state
    * @param selectedObjectProperty - Property indicating currently selected object
    * @param scenarioProperty - Property for the current scenario
    */
   public attachKeyboardHandlers(
-    targetNode: Node,
     callbacks: KeyboardCallbacks,
     playProperty: Property<boolean>,
     sourceVelocityProperty: Property<Vector2>,
@@ -61,6 +81,8 @@ export class KeyboardHandlerManager {
     observerMovingProperty: Property<boolean>,
     emittedFrequencyProperty: Property<number>,
     soundSpeedProperty: Property<number>,
+    frequencyRange: NumericRange,
+    soundSpeedRange: NumericRange,
     microphoneEnabledProperty: Property<boolean>,
     selectedObjectProperty: Property<"source" | "observer">,
     scenarioProperty: Property<Scenario>,
@@ -84,28 +106,30 @@ export class KeyboardHandlerManager {
 
       this.handleActions(key, callbacks, playProperty, microphoneEnabledProperty);
       this.handleScenarioPresets(key, scenarioProperty);
-      this.handleAdjustments(key, emittedFrequencyProperty, soundSpeedProperty);
+      this.handleAdjustments(key, emittedFrequencyProperty, soundSpeedProperty, frequencyRange, soundSpeedRange);
     };
 
-    // Add key listeners to the view
-    const keydownListener = {
-      listener: (event: SceneryEvent<KeyboardEvent>) => {
-        if (!event.domEvent) {
-          return;
-        }
-        const key = event.domEvent.key.toLowerCase();
-        handleKeydown(key);
-      },
+    // A single global keydown listener drives the sim-wide shortcuts. Re-attaching
+    // removes any previous listener first so handlers can never stack or leak.
+    this.detachKeyboardHandlers();
+    this.windowKeydownListener = (event: KeyboardEvent) => {
+      // Don't hijack keys while the user is typing in an editable control.
+      if (isEditableTarget(event.target)) {
+        return;
+      }
+      handleKeydown(event.key.toLowerCase());
     };
+    window.addEventListener("keydown", this.windowKeydownListener);
+  }
 
-    // Add the keyboard listener to the view
-    targetNode.addInputListener(keydownListener);
-
-    // Also add a global keyboard listener to ensure we catch all keyboard events
-    window.addEventListener("keydown", (event) => {
-      const key = event.key.toLowerCase();
-      handleKeydown(key);
-    });
+  /**
+   * Remove the global keyboard listener, if one is attached.
+   */
+  public detachKeyboardHandlers(): void {
+    if (this.windowKeydownListener) {
+      window.removeEventListener("keydown", this.windowKeydownListener);
+      this.windowKeydownListener = null;
+    }
   }
 
   /**
@@ -144,6 +168,9 @@ export class KeyboardHandlerManager {
     // Set velocity based on key
     const velocity = new Vector2(0, 0);
 
+    // Note: "s" is reserved for selecting the source (see handleObjectSelection),
+    // so downward movement uses ArrowDown only. "w"/"a"/"d" remain as WASD aliases
+    // for the non-conflicting directions.
     if (key === "arrowleft" || key === "a") {
       velocity.x = -100.0;
     } else if (key === "arrowright" || key === "d") {
@@ -152,7 +179,7 @@ export class KeyboardHandlerManager {
 
     if (key === "arrowup" || key === "w") {
       velocity.y = 100.0;
-    } else if (key === "arrowdown" || key === "s") {
+    } else if (key === "arrowdown") {
       velocity.y = -100.0;
     }
 
@@ -200,23 +227,28 @@ export class KeyboardHandlerManager {
   }
 
   /**
-   * Adjust emitted frequency and sound speed
+   * Adjust emitted frequency and sound speed, clamped to the same ranges the
+   * sliders enforce so the keyboard can't drive values out of bounds.
    */
   private handleAdjustments(
     key: string,
     emittedFrequencyProperty: Property<number>,
     soundSpeedProperty: Property<number>,
+    frequencyRange: NumericRange,
+    soundSpeedRange: NumericRange,
   ): void {
+    const clamp = (value: number, range: NumericRange) => Math.max(range.min, Math.min(range.max, value));
+
     if (key === "+" || key === "=") {
-      emittedFrequencyProperty.value += 0.1;
+      emittedFrequencyProperty.value = clamp(emittedFrequencyProperty.value + 0.1, frequencyRange);
     } else if (key === "-" || key === "_") {
-      emittedFrequencyProperty.value = Math.max(0.1, emittedFrequencyProperty.value - 0.1);
+      emittedFrequencyProperty.value = clamp(emittedFrequencyProperty.value - 0.1, frequencyRange);
     }
 
     if (key === "." || key === ">") {
-      soundSpeedProperty.value += 1.0;
+      soundSpeedProperty.value = clamp(soundSpeedProperty.value + 1.0, soundSpeedRange);
     } else if (key === "," || key === "<") {
-      soundSpeedProperty.value = Math.max(1.0, soundSpeedProperty.value - 1.0);
+      soundSpeedProperty.value = clamp(soundSpeedProperty.value - 1.0, soundSpeedRange);
     }
   }
 }

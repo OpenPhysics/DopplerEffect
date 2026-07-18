@@ -29,7 +29,7 @@ export class Sound {
   private audioContext: AudioContext | null = null;
   private useGeneratedSound: boolean;
 
-  constructor(src: string, useGeneratedSound: boolean = false) {
+  constructor(src: string = "", useGeneratedSound: boolean = false) {
     this.useGeneratedSound = useGeneratedSound;
 
     if (!useGeneratedSound) {

@@ -34,7 +34,6 @@ import { DopplerEffectScreenSummaryContent } from "./DopplerEffectScreenSummaryC
 import { DragHandlerManager } from "./managers/DragHandlerManager";
 import { KeyboardHandlerManager } from "./managers/KeyboardHandlerManager";
 import { WaveManager } from "./managers/WaveManager";
-import { Sound } from "./utils/Sound";
 
 // UI constants
 const UI = {
@@ -105,9 +104,6 @@ export class DopplerEffectScreenView extends ScreenView {
   private readonly selectedObjectProperty: Property<"source" | "observer"> = new Property<"source" | "observer">(
     "source",
   );
-
-  // Sound elements
-  private readonly clickSound: Sound;
 
   // Derived property for interface bounds
   private readonly interfaceBoundsProperty: TReadOnlyProperty<Bounds2>;
@@ -234,7 +230,9 @@ export class DopplerEffectScreenView extends ScreenView {
       this.modelViewTransform,
       this.model.microphonePositionProperty,
       this.model.waveDetectedProperty,
-      new Property(this.modelViewTransform.viewToModelBounds(this.layoutBounds)),
+      // Constrain the microphone to the visible model area; follows window resizing
+      // rather than being frozen to the initial layout bounds.
+      modelBoundsProperty,
     );
     this.microphoneNode.setAccessibleName(a11yControls.microphoneStringProperty);
     this.objectLayer.addChild(this.microphoneNode);
@@ -384,7 +382,6 @@ export class DopplerEffectScreenView extends ScreenView {
 
     // Setup keyboard handlers
     this.keyboardManager.attachKeyboardHandlers(
-      this,
       {
         onSourceSelected: () => this.updateSelectionHighlight(),
         onObserverSelected: () => this.updateSelectionHighlight(),
@@ -406,6 +403,8 @@ export class DopplerEffectScreenView extends ScreenView {
       this.model.observerMovingProperty,
       this.model.emittedFrequencyProperty,
       this.model.soundSpeedProperty,
+      this.model.frequencyRange,
+      this.model.soundSpeedRange,
       this.model.microphoneEnabledProperty,
       this.selectedObjectProperty,
       this.model.scenarioProperty,
@@ -433,9 +432,6 @@ export class DopplerEffectScreenView extends ScreenView {
         this.updateSelectionHighlight();
       },
     );
-
-    // Create and load click sound
-    this.clickSound = new Sound("./assets/click.wav", true);
 
     // Setup model listeners
     this.addModelListeners();
@@ -536,12 +532,8 @@ export class DopplerEffectScreenView extends ScreenView {
       this.graphDisplayNode.updateWaveforms(this.model.emittedWaveformData, this.model.observedWaveformData);
     });
 
-    // Listen for wave detection to play click sound
-    this.model.waveDetectedProperty.link((detected) => {
-      if (detected) {
-        this.clickSound.play();
-      }
-    });
+    // Note: the click sound on wave detection is played by MicrophoneNode, which owns
+    // the microphone's detection feedback. Playing it here as well would double the click.
   }
 
   /**

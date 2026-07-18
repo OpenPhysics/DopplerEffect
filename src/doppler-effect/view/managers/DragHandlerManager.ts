@@ -84,11 +84,13 @@ export class DragHandlerManager {
 
         // Convert position difference to velocity using a scaling factor
         // This factor represents 1/time and converts distance to distance/time
-        const desiredVelocity = positionDifference.timesScalar(PHYSICS.POSITION_TO_VELOCITY_FACTOR);
+        let desiredVelocity = positionDifference.timesScalar(PHYSICS.POSITION_TO_VELOCITY_FACTOR);
 
-        // Limit velocity to maximum speed
+        // Limit velocity to maximum speed. normalize() mutates in place and timesScalar()
+        // returns a new vector, so the clamped result must be reassigned (otherwise the
+        // velocity collapses to a unit vector instead of being scaled to the max speed).
         if (desiredVelocity.magnitude > this.maxSpeedProperty.value) {
-          desiredVelocity.normalize().timesScalar(this.maxSpeedProperty.value);
+          desiredVelocity = desiredVelocity.normalized().timesScalar(this.maxSpeedProperty.value);
         }
 
         // Apply velocity

@@ -84,6 +84,26 @@ describe("WaveGenerator.generateWaves", () => {
     generator.reset();
     expect(waves.length).toBe(0);
   });
+
+  it("emits every elapsed interval when a single frame spans several intervals", () => {
+    // A 0.55 s frame at 10 Hz (0.1 s interval) covers 5 whole intervals.
+    time = 0.55;
+    generator.generateWaves();
+    expect(waves.length).toBe(5);
+  });
+
+  it("keeps a drift-free cadence across many small frames", () => {
+    // Advance in ~60 fps steps for 5 s; at 10 Hz we expect ~50 waves, and the
+    // emission clock must not lag behind by more than one interval.
+    const steps = Math.round(5 / (1 / 60));
+    for (let i = 1; i <= steps; i++) {
+      time = i / 60;
+      generator.generateWaves();
+    }
+    // 5 s at 10 Hz -> 50 intervals; allow a one-wave boundary tolerance.
+    expect(waves.length).toBeGreaterThanOrEqual(49);
+    expect(waves.length).toBeLessThanOrEqual(50);
+  });
 });
 
 describe("WaveGenerator.detectWaveAt", () => {

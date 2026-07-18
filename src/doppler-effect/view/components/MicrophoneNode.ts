@@ -15,6 +15,7 @@ import {
   type Property,
   Rectangle,
   Shape,
+  type TReadOnlyProperty,
   type Vector2,
 } from "scenerystack";
 import { stepTimer } from "scenerystack/axon";
@@ -51,7 +52,7 @@ const MICROPHONE = {
   // colorProperties
   bodyColorProperty: DopplerEffectColors.microphoneBodyColorProperty,
   stemColorProperty: DopplerEffectColors.microphoneStemColorProperty,
-  baseColotProperty: DopplerEffectColors.microphoneBaseColorProperty,
+  baseColorProperty: DopplerEffectColors.microphoneBaseColorProperty,
   gridColorProperty: DopplerEffectColors.microphoneGridColorProperty,
   detectionRingColorProperty: DopplerEffectColors.microphoneDetectionRingColorProperty,
 };
@@ -80,7 +81,7 @@ export class MicrophoneNode extends Node {
     modelViewTransform: ModelViewTransform2,
     microphonePositionProperty: Property<Vector2>,
     waveDetectedProperty: Property<boolean>,
-    dragBoundsProperty: Property<Bounds2>,
+    dragBoundsProperty: TReadOnlyProperty<Bounds2>,
   ) {
     super({
       cursor: "pointer",
@@ -116,7 +117,7 @@ export class MicrophoneNode extends Node {
       MICROPHONE.BASE_WIDTH,
       MICROPHONE.BASE_HEIGHT,
       {
-        fill: MICROPHONE.baseColotProperty,
+        fill: MICROPHONE.baseColorProperty,
         cornerRadius: MICROPHONE.BASE_CORNER_RADIUS,
       },
     );
@@ -156,8 +157,8 @@ export class MicrophoneNode extends Node {
     });
     this.addChild(this.detectionRing);
 
-    // Create and load click sound
-    this.clickSound = new Sound("./assets/click.wav", true);
+    // Create click sound (synthesized via WebAudio; no audio file is loaded)
+    this.clickSound = new Sound("", true);
 
     // Position microphone at initial position
     this.center = this.modelViewTransform.modelToViewPosition(this.microphonePositionProperty.value);

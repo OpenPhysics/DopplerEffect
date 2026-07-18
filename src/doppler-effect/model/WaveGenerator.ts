@@ -51,9 +51,15 @@ export class WaveGenerator {
     const simulationTime = this.getSimulationTime(); // in seconds (s)
     const waveInterval = 1.0 / this.getEmittedFrequency(); // in seconds (s)
 
-    // Check if it's time to emit a new wave
-    if (simulationTime - this.lastWaveTime > waveInterval) {
-      // Create a new wave
+    // Advance the emission clock by whole intervals rather than snapping it to the
+    // current time. Snapping would let each frame's leftover fraction accumulate and
+    // stretch the spacing between waves; stepping by waveInterval keeps the cadence
+    // drift-free and emits every wave whose interval falls inside a long frame.
+    while (simulationTime - this.lastWaveTime > waveInterval) {
+      this.lastWaveTime += waveInterval; // in seconds (s)
+
+      // Create a new wave. Position/velocity/phase are sampled at the current source
+      // state (the emission time is within one interval of now, so this is accurate).
       const newWave = {
         position: this.getSourcePosition().copy(), // in meters (m)
         radius: 0, // in meters (m)
@@ -68,9 +74,6 @@ export class WaveGenerator {
 
       // Store in history for time reversal
       this.waveHistory.push(newWave);
-
-      // Update last wave time (in seconds)
-      this.lastWaveTime = simulationTime; // in seconds (s)
     }
   }
 
@@ -159,9 +162,14 @@ export class WaveGenerator {
       // Only include waves that were born before the target time
       // and haven't exceeded their maximum age
       if (wave.birthTime <= targetTime && targetTime - wave.birthTime <= WAVE.MAX_AGE) {
-        // Create a copy of the wave with the correct radius for the target time
+        // Reconstruct the radius the front had at the target time. This is exact while
+        // the sound speed is constant (radius = age * soundSpeed reduces to the forward
+        // integration in WaveGenerator.updateWaves); if the speed changed during the
+        // wave's lifetime it is a best-effort estimate from the current speed, consistent
+        // with the arrival-time reconstruction in DopplerCalculator.findWavesAtObserver.
+        // age is non-negative here (birthTime <= targetTime), so radius is too.
         const age = targetTime - wave.birthTime;
-        const radius = age * this.getSoundSpeed();
+        const radius = Math.max(0, age * this.getSoundSpeed());
 
         const restoredWave = {
           position: wave.position.copy(),

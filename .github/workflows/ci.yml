@@ -26,21 +26,8 @@ jobs:
   ci:
     uses: OpenPhysics/Baton/.github/workflows/ci.yml@main
 
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7.0.0
-      - uses: actions/setup-node@v6.4.0
-        with:
-          node-version: 22
-          cache: npm
-      - run: npm ci
-      - run: npm test
-
   compliance:
     uses: OpenPhysics/Baton/.github/workflows/shared-compliance-check.yml@main
-    with:
-      repo-name: DopplerEffect
 
   dependency-review:
     if: github.event_name == 'pull_request'
@@ -48,4 +35,3 @@ jobs:
 
   codeql:
     uses: OpenPhysics/Baton/.github/workflows/shared-codeql.yml@main
-

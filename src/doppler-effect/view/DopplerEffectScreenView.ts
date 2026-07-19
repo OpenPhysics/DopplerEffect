@@ -15,11 +15,7 @@ import {
   Vector2,
 } from "scenerystack";
 import { ScreenView, type ScreenViewOptions } from "scenerystack/sim";
-import {
-  FLAT_RESET_ALL_BUTTON_OPTIONS,
-  LIGHT_SURFACE_TEXT_FILL,
-  SIM_COMBO_BOX_OPTIONS,
-} from "../../common/DopplerEffectButtonOptions.js";
+import { FLAT_RESET_ALL_BUTTON_OPTIONS } from "../../common/DopplerEffectButtonOptions.js";
 import DopplerEffectColors from "../../DopplerEffectColors";
 import { SCALE } from "../../DopplerEffectConstants";
 import { StringManager } from "../../i18n/StringManager";
@@ -309,14 +305,17 @@ export class DopplerEffectScreenView extends ScreenView {
     this.controlPanel.setAccessibleName(a11yControls.controlPanelStringProperty);
     this.controlLayer.addChild(this.controlPanel);
 
-    // Create scenario items for the combo box (labels sit on light control surfaces).
-    const scenarioItems = this.createScenarioItems(LIGHT_SURFACE_TEXT_FILL);
+    // Create scenario items for the combo box
+    const scenarioItems = this.createScenarioItems(DopplerEffectColors.textColorProperty);
 
     const listParentNode = new Node();
 
     // Create combo box using SceneryStack API
     const scenarioComboBoxNode = new ComboBox(model.scenarioProperty, scenarioItems, listParentNode, {
-      ...SIM_COMBO_BOX_OPTIONS,
+      buttonFill: DopplerEffectColors.backgroundColorProperty,
+      listFill: DopplerEffectColors.backgroundColorProperty,
+      buttonStroke: DopplerEffectColors.textColorProperty,
+      listStroke: DopplerEffectColors.textColorProperty,
       highlightFill: DopplerEffectColors.highlightColorProperty,
     });
     scenarioComboBoxNode.setAccessibleName(

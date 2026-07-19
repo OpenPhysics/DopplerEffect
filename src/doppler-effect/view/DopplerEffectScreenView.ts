@@ -353,15 +353,21 @@ export class DopplerEffectScreenView extends ScreenView {
       timeSpeedProperty: this.model.timeSpeedProperty,
       playPauseStepButtonOptions: {
         includeStepBackwardButton: true,
+        playPauseButtonOptions: {
+          startPlayingAccessibleName: a11yControls.playPauseStartStringProperty,
+          endPlayingAccessibleName: a11yControls.playPauseEndStringProperty,
+        },
         stepBackwardButtonOptions: {
           listener: () => {
             this.model.step(-1 / 60, true);
           },
+          accessibleName: a11yControls.stepBackwardStringProperty,
         },
         stepForwardButtonOptions: {
           listener: () => {
             this.model.step(1 / 60, true);
           },
+          accessibleName: a11yControls.stepForwardStringProperty,
         },
       },
 

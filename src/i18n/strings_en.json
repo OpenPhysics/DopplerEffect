@@ -122,7 +122,15 @@
       "resetSimulation": "Reset simulation",
       "scaleMark": "Scale marker showing 1000 meters",
       "simulationSpeed": "Simulation speed control",
-      "keyboardShortcuts": "Keyboard shortcuts help"
+      "keyboardShortcuts": "Keyboard shortcuts help",
+      "playPauseStart": "Play",
+      "playPauseEnd": "Pause",
+      "stepForward": "Step forward",
+      "stepBackward": "Step backward",
+      "soundSpeed": "Sound speed",
+      "soundSpeedHelp": "Adjust how fast sound waves travel.",
+      "emittedFrequency": "Emitted frequency",
+      "emittedFrequencyHelp": "Adjust the frequency of the sound source."
     }
   },
   "preferences": {

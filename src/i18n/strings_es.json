@@ -122,7 +122,15 @@
       "resetSimulation": "Restablecer la simulación",
       "scaleMark": "Marca de escala que muestra 1000 metros",
       "simulationSpeed": "Control de velocidad de simulación",
-      "keyboardShortcuts": "Ayuda de atajos de teclado"
+      "keyboardShortcuts": "Ayuda de atajos de teclado",
+      "playPauseStart": "Reproducir",
+      "playPauseEnd": "Pausa",
+      "stepForward": "Avanzar un paso",
+      "stepBackward": "Retroceder un paso",
+      "soundSpeed": "Velocidad del sonido",
+      "soundSpeedHelp": "Ajusta la velocidad a la que viajan las ondas de sonido.",
+      "emittedFrequency": "Frecuencia emitida",
+      "emittedFrequencyHelp": "Ajusta la frecuencia de la fuente de sonido."
     }
   },
   "preferences": {

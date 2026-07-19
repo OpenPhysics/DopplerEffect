@@ -99,6 +99,7 @@ export class ControlPanelNode extends Node {
     const checkboxGroup = new VerticalCheckboxGroup(items);
 
     // Create sound speed control
+    const a11y = this.stringManager.getA11yStrings();
     const soundSpeedControl = new NumberControl(strings.soundSpeedStringProperty, soundSpeedProperty, soundSpeedRange, {
       layoutFunction: NumberControl.createLayoutFunction2({ ySpacing: 12 }),
       numberDisplayOptions: {
@@ -109,6 +110,8 @@ export class ControlPanelNode extends Node {
         maxWidth: 140,
         fill: DopplerEffectColors.controlPanelTextColorProperty,
       },
+      accessibleName: a11y.controls.soundSpeedStringProperty,
+      accessibleHelpText: a11y.controls.soundSpeedHelpStringProperty,
     });
     soundSpeedControl.top = checkboxGroup.bottom + 10;
 
@@ -127,6 +130,8 @@ export class ControlPanelNode extends Node {
           maxWidth: 140,
           fill: DopplerEffectColors.controlPanelTextColorProperty,
         },
+        accessibleName: a11y.controls.emittedFrequencyStringProperty,
+        accessibleHelpText: a11y.controls.emittedFrequencyHelpStringProperty,
       },
     );
     frequencyControl.top = soundSpeedControl.bottom + 10;
@@ -142,6 +147,7 @@ export class ControlPanelNode extends Node {
       top: options.graphBottom + 10,
       fill: DopplerEffectColors.controlPanelBackgroundColorProperty,
       stroke: DopplerEffectColors.controlPanelBorderColorProperty,
+      accessibleName: a11y.controls.controlPanelStringProperty,
     });
 
     // Add the panel to this node

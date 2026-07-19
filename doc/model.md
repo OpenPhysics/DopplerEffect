@@ -1,56 +1,86 @@
 # Model - Doppler Effect
 
-This document describes the model (the underlying physics, math, and behavior) for the simulation, in
-terms appropriate for an educator. It is the companion to
+This document describes the model (the underlying physics, math, and behavior) for the simulation,
+in terms appropriate for an educator. It is the companion to
 [implementation-notes.md](./implementation-notes.md), which targets developers.
 
 ## Overview
 
-The simulation demonstrates the **Doppler effect**: the change in observed frequency of a wave when the
-source, the observer, or both are moving relative to the medium. A moving source emits sound waves that
-bunch up ahead of its motion and spread out behind it, so an observer ahead hears a higher pitch and an
-observer behind hears a lower pitch. Students can move both the source and a microphone (observer),
-choose preset scenarios, and watch the emitted wavefronts, the measured frequency, and the resulting
-waveform update in real time.
+The simulation demonstrates the **classical Doppler effect** for sound in a uniform medium. A **source**
+emits periodic circular **wavefronts** that expand at speed *c*; when the source or an **observer**
+(microphone) moves, the spacing of wavefronts along the line of sight changes and the **observed
+frequency** shifts. Students drag the source and observer, pick preset scenarios, enable a
+microphone at an arbitrary point, and watch wavefronts, frequency readouts, and waveforms update in
+real time.
+
+The key ideas a student should take away:
+
+- Motion **toward** the observer compresses wavefront spacing → **higher** observed pitch; motion
+  **apart** stretches spacing → **lower** pitch.
+- The shift depends on the velocity components **along the line of sight**, not total speed alone
+  (perpendicular motion gives no first-order shift).
+- Each emitted wavefront expands from the source position **at emission**; the geometric bunching of
+  circles is the visual origin of the effect.
+- The formula below is **non-relativistic** and assumes a stationary uniform medium.
 
 ## Quantities and units
 
+Model space uses **metres** and **seconds**; the view maps to screen coordinates via a fixed scale.
+
 | Quantity | Symbol | Units | Notes |
 |---|---|---|---|
-| Wave (sound) speed | c | m/s | Speed of propagation in the medium (constant) |
-| Source position / velocity | xₛ, vₛ | m, m/s | Set by dragging the source |
-| Observer position / velocity | x_o, v_o | m, m/s | Set by dragging the microphone |
-| Emitted frequency | f₀ | Hz | Frequency produced at the source |
-| Observed frequency | f | Hz | Frequency measured at the observer |
-| Time | t | s | Advances through the model `step(dt)` chain |
+| Sound speed | c | m/s | Uniform medium (default 343 m/s; user adjustable) |
+| Source position / velocity | **x**_s, **v**_s | m, m/s | Green source icon |
+| Observer position / velocity | **x**_o, **v**_o | m, m/s | Purple observer icon |
+| Microphone position | **x**_m | m | Optional listening point (can differ from observer) |
+| Emitted frequency | f₀ | Hz | Tone at the source |
+| Observed frequency | f | Hz | At observer from Doppler formula |
+| Simulation time | t | s | Advances when play is on |
+| Wave radius | r | m | Distance front has traveled since emission |
+| Phase at emission | φ | rad | Tied to emitted waveform generator |
 
 ## Governing equations
 
-The observed frequency for motion along the line connecting source and observer is
+**Classical Doppler shift** along the unit vector **d**̂ from the wave origin (at emission) to the
+observer:
 
 ```
-f = f₀ · (c + v_o) / (c − vₛ)
+f = f₀ · (c − v_o,∥) / (c − v_s,∥)
 ```
 
-where velocities are taken as positive when source and observer move **toward** each other. For
-arbitrary 2-D motion the model uses the components of each velocity projected onto the line of sight
-between source and observer, so the shift depends only on the rate at which their separation changes.
+where v_s,∥ = **v**_s · **d**̂ and v_o,∥ = **v**_o · **d**̂ (positive when motion is **along** **d**̂
+in the direction from source toward observer). This matches the implementation in `DopplerCalculator`
+(with the sim's sign convention for approach/recede scenarios).
 
-Wavefronts are emitted at regular intervals from the source's position **at the moment of emission** and
-then expand outward at speed `c`; the bunching and stretching of these circles is the geometric origin
-of the frequency shift.
+**Wave emission.** New fronts spawn every Δt = 1/f₀ at the **current** source position, storing
+position, birth time, source velocity at emission, f₀, and phase. Existing fronts expand:
+
+```
+r(t) = ∫ c dt   (discrete steps: r ← r + c · Δt)
+```
+
+**Arrival at observer.** A front has reached the observer when r ≥ |**x**_o − **x**_emit|; arrival
+time is reconstructed from radius overshoot and current *c* (robust to mid-flight speed changes).
+
+**Observed waveform.** The waveform display uses the Doppler-shifted frequency for the most recently
+arrived front; phase continuity follows φ at arrival plus 2πfΔt since arrival (stationary-frequency
+branch avoids double-counting when the observer also moves).
+
+**Microphone detection.** A separate point can detect front **crossings** (radius sweeps past distance
+during a step) for audible clicks, independent of the main observer readout.
 
 ## Simplifications and assumptions
 
-- Non-relativistic: speeds are small compared with light, and the classical Doppler formula is used.
-- A single uniform, stationary medium with constant wave speed; no wind, temperature gradients, or
-  reflections.
-- Point source and point observer; no diffraction, attenuation with distance, or shock-wave (Mach-cone)
-  rendering when a source exceeds the wave speed.
+- **Non-relativistic** classical acoustics; no electromagnetic Doppler or relativistic corrections.
+- **Single uniform medium** with constant *c* (no wind, temperature gradients, or attenuation with distance).
+- **Point source** and **point observer**; no directivity, diffraction, or standing-room reverberation.
+- No **shock-wave (Mach cone)** rendering when |**v**_s| > *c*; formula still evaluated but physics is
+  not modeled in that regime.
+- Time reversal restores source/observer kinematics and rebuilds wave radii from history — approximate
+  if *c* changed during a wave's lifetime.
 
 ## References
 
-- Any introductory physics text, "The Doppler Effect" (e.g. Serway & Jewett, *Physics for Scientists and
-  Engineers*).
-- Based on the PhET *Sound* / Doppler teaching model.
-</content>
+- R. Serway & J. Jewett, *Physics for Scientists and Engineers* — Doppler effect for sound.
+- Any introductory waves text: moving source vs. moving observer diagrams.
+- PhET *Sound* / Doppler teaching models (pedagogical lineage).

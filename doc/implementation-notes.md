@@ -1,132 +1,80 @@
-# Implementation Notes - Doppler Effect Simulation
+# Implementation Notes - Doppler Effect
+
+Developer-facing notes on the architecture. The physics is documented for educators in
+[model.md](./model.md).
 
 ## Architecture Overview
 
-The Doppler Effect simulation is structured using a Model-View pattern, with clear separation of concerns between the physics simulation and its visual representation. We have attempted to maintain independent physics calculations that are not tied to specific visualization approaches.
+Doppler Effect is a single-screen SceneryStack sim with a modular model and a layered view. Physics
+runs in model space (metres, seconds); the view applies a fixed `ModelViewTransform2` (origin at layout
+center, inverted y).
 
-### High-Level Architecture
+```
+src/doppler-effect/model/
+  ├─ DopplerEffectModel.ts     coordinator: step, reset, scenarios, time reversal
+  ├─ MovableObject.ts          position, velocity, moving flag, trail history
+  ├─ WaveGenerator.ts          emit fronts, expand radius, detect microphone crossing
+  ├─ DopplerCalculator.ts      f_obs, findWavesAtObserver (pure physics helpers)
+  ├─ WaveformManager.ts        emitted/observed waveform buffers + phase
+  └─ DopplerEffectConstants.ts PHYSICS, SCALE, WAVE, SOUND_DATA, scenarios
 
-The simulation follows a modular architecture:
+src/doppler-effect/view/
+  ├─ DopplerEffectScreenView.ts   layers: wave, object, graph, control
+  ├─ managers/
+  │   ├─ WaveManager.ts           draws expanding circles from model.waves
+  │   ├─ DragHandlerManager.ts    pointer drag source/observer/mic
+  │   └─ KeyboardHandlerManager.ts  arrows, scenario hotkeys 0–6
+  ├─ components/
+  │   ├─ MoveableObjectView.ts, MicrophoneNode.ts, GraphDisplayNode.ts
+  │   ├─ ControlPanelNode.ts, GridNode.ts, VectorDisplay.ts, …
+  │   └─ TrailPath.ts             motion trails (age + count limits)
+  └─ utils/Sound.ts               Web Audio playback from observed frequency
 
-- **Model Layer (`/model`)**: Contains all physics simulation logic, calculations, and state
-- **View Layer (`/view`)**: Handles all visual representation and user interactions
-
-Data flows primarily from Model → View, with user interactions in the View triggering updates to the Model. We use the AXON property system (from PhET/SceneryStack libraries) to create observable properties that automatically notify components of changes.
-
-### Model-View Transform
-
-A coordinate transformation system maps between model space (physical units) and view space (screen units). This abstraction allows the physics model to work in physically meaningful units (meters, seconds) while the view handles screen-specific units (view coordinates). We have chosen to place the physical origin at the center of the layout bounds and selected an inverted Y-axis in screen coordinates. We use an isometric scaling along the x and the y that is specified in SCALE.MODEL_VIEW.
-
-## Model Components
-
-### Core Model Design
-
-The `DopplerEffectModel` class serves as the central coordinator, connecting specialized components:
-
-### Component Specialization
-
-Each model component has a single responsibility:
-
-1. **MovableObject**: Encapsulates position and velocity for source and observer
-2. **WaveGenerator**: Manages wave creation and propagation
-3. **WaveformManager**: Handles sound waveform data for visualization
-4. **DopplerCalculator**: Performs Doppler effect physics calculations
-
-### Physics Simulation Approach
-
-- **Wave Propagation**: Circular waves expanding at the speed of sound
-- **Doppler Calculation**: Classical Doppler formula implemented in `DopplerCalculator`
-- **Trail System**: Position history maintained with age and count constraints
-
-Physical quantities include explicit unit documentation:
-
-```typescript
-// Sound speed in meters per second (m/s)
-this.soundSpeedProperty = new NumberProperty(PHYSICS.SOUND_SPEED);
-
-// Position in meters (m)
-this.sourcePositionProperty = this.source.positionProperty;
-
-// Frequency in Hertz (Hz)
-this.emittedFrequencyProperty = new NumberProperty(PHYSICS.EMITTED_FREQ);
+src/doppler-effect/DopplerEffectScreen.ts
+src/preferences/ DopplerEffectPreferencesModel, dopplerEffectQueryParameters
+src/DopplerEffectColors.ts     source green, observer purple (avoid redshift/blueshift confusion)
 ```
 
-The majority of the Physics constants have been hoisted in `DopplerEffectConstants.ts`
+Data flows Model → View through AXON `Property` objects and `model.waves` (`ObservableArray`). User
+drags update `MovableObject` position Properties on the model.
 
-We use a step function with scaled time:
+## Key design decisions
 
-```typescript
-public step(dt: number, force: boolean = false): void {
-  if (!this.playProperty.value && !force) return;
+- **Specialized components.** `DopplerEffectModel` coordinates but delegates emission
+  (`WaveGenerator`), shift (`DopplerCalculator`), and waveforms (`WaveformManager`). Keeps unit-tested
+  pieces isolated.
+- **Emission clock.** `WaveGenerator` advances `lastWaveTime` by whole 1/f₀ intervals (no per-frame
+  drift) and stores each front in `waveHistory` for time reversal.
+- **Microphone crossing.** Detection uses front **sweep** (previous radius < distance ≤ current radius)
+  so fast fronts are not missed between frames.
+- **Scenario presets.** `Scenario` enumeration + `SCENARIO_CONFIGS` set initial velocities and moving
+  flags without full reset; keyboard 0–6 loads scenarios.
+- **Time reversal.** Negative Δt restores nearest kinematic snapshot and `WaveGenerator.restoreWavesFromHistory`;
+  waves are not duplicated in `SimulationState` snapshots.
+- **Waveform update throttling.** At slow time speed, waveform buffers update every N frames to keep
+  display stable.
 
-  // Apply time scaling
-  const modelDt = dt * SCALE.TIME * this.getTimeSpeedValue();
+## Model / view design
 
-  // Update simulation time
-  this.simulationTimeProperty.value += modelDt;
+- `step(dt)` applies `modelDt = dt · SCALE.TIME · timeSpeed`, updates positions, generates/ages waves,
+  runs Doppler + waveform update, sets `waveDetectedProperty` for the mic.
+- `WaveManager` reads `waves` ObservableArray; no physics in the view.
+- `Sound.ts` drives audio from observed frequency when enabled.
+- Colors documented in `DopplerEffectColors.ts` to avoid conflating UI colours with shift terminology.
 
-  // Update components
-  this.source.updatePosition(modelDt);
-  this.observer.updatePosition(modelDt);
-  // Additional updates...
-}
-```
+## Disposal conventions
 
-### Model-View Communication with AXON Properties
+Most nodes and Property links are screen-lifetime. `DragHandlerManager` includes dispose cleanup for
+pointer listeners. Expand `tests/memory-leak.test.ts` if adding dynamic layers or scenario rebuild paths.
 
-The simulation uses PhET's AXON property system extensively. Observable properties are defined in model classes and components subscribe to property changes via `link()` and
-`lazyLink()`. For instance, we use AXON properties to update the values:
+## Testing
 
-```typescript
-public readonly scenarioProperty: EnumerationProperty<Scenario>;
-```
+`npm test` (vitest, `--expose-gc`):
 
-Property changes trigger specific updates through AXON linking:
+- `tests/DopplerCalculator.test.ts` — Doppler formula and arrival-time logic
+- `tests/WaveGenerator.test.ts` — emission cadence, aging, crossing detection
+- `tests/memory-leak.test.ts` — fleet WeakRef/GC regression
 
-```typescript
-this.scenarioProperty.lazyLink((scenario) => {
-  this.applyScenario(scenario);
-});
-```
+## Multi-screen simulations
 
-For the Waves components, we have created an ObservableArray. In some cases, we resorted to `DerivedProperty` for values that depend on multiple properties.
-
-## View Components
-
-### DopplerEffectScreenView as Coordinator
-
-The `DopplerEffectScreenView` coordinates all visual elements and user interactions. Visual elements are organized in layers for proper stacking:
-
-```typescript
-[this.waveLayer, this.objectLayer, this.graphLayer, this.controlLayer].forEach(
-  (layer) => this.addChild(layer),
-);
-```
-
-Specialized manager classes handle specific visualization aspects:
-
-1. **WaveManager**: Visualizes propagating waves
-2. **TrailPath** (in `MoveableObjectView.ts`): Renders position history trails for source and observer
-3. **DragHandlerManager**: Manages user drag interactions
-4. **KeyboardHandlerManager**: Processes keyboard controls
-
-### Color Scheme
-
-The simulation uses a carefully selected color scheme to avoid confusion with Doppler shift terminology:
-
-- **Source**: Green (to avoid confusion with redshift)
-- **Observer**: Purple (to avoid confusion with blueshift)
-- **Velocity Arrows**: Match their respective objects (green for source, purple for observer)
-- **Wave Visualization**: Neutral colors that don't conflict with the source/observer colors
-
-This color scheme helps users distinguish between the source and observer while avoiding confusion with the blue shift and red shift phenomena in the Doppler effect.
-
-### Performance Optimizations
-
-We have attempted to optimize this simulation, but trying to reduce its footprint.
-
-- Waves are removed after exceeding maximum age
-- For the motion trails, it is both age and size constraints
-- For the graphs, there is a fixed-size buffer for waveform data
-
-Note that no dispose functions have been used, which should be addressed.
+Single-screen sim. See fleet `doc/multi-screen.md` if splitting source-motion vs. observer-motion labs.

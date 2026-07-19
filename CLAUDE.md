@@ -48,7 +48,7 @@ frequency + play state) via the `screenSummaryContent` super-option, and orders 
 
 ## Compliance carve-outs
 
-- **Nested constants:** physics/layout constants under `src/doppler-effect/model/DopplerEffectConstants.ts` (no root `DopplerEffectConstants.ts`).
+- **Root constants:** `src/DopplerEffectConstants.ts` (sim-wide); no separate nested primary constants module.
 
 ## Testing
 

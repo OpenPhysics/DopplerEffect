@@ -1,4 +1,4 @@
-import { WAVEFORM, type WaveformPoint } from "./DopplerEffectConstants";
+import { WAVEFORM, type WaveformPoint } from "../../DopplerEffectConstants";
 
 /**
  * WaveformManager handles the generation and updating of waveform data

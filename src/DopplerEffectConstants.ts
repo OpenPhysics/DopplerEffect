@@ -11,6 +11,9 @@
 
 import { Vector2 } from "scenerystack";
 
+/** Corner radius shared by control panels and dialogs (px). */
+export const PANEL_CORNER_RADIUS = 5;
+
 // Definition for waveform data used in visualization
 export type WaveformPoint = {
   t: number; // Time value in seconds (s), used for right-aligned visualization

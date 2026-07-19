@@ -13,10 +13,6 @@ import {
   type TReadOnlyProperty,
   Vector2,
 } from "scenerystack";
-import { StringManager } from "../../i18n/StringManager";
-import type { DopplerEffectPreferencesModel } from "../../preferences/DopplerEffectPreferencesModel";
-import dopplerEffectQueryParameters from "../../preferences/dopplerEffectQueryParameters";
-import { DopplerCalculator } from "./DopplerCalculator";
 import {
   INITIAL_POSITIONS,
   PHYSICS,
@@ -24,7 +20,11 @@ import {
   SOUND_DATA,
   TIME_SPEED,
   type WaveformPoint,
-} from "./DopplerEffectConstants";
+} from "../../DopplerEffectConstants";
+import { StringManager } from "../../i18n/StringManager";
+import type { DopplerEffectPreferencesModel } from "../../preferences/DopplerEffectPreferencesModel";
+import dopplerEffectQueryParameters from "../../preferences/dopplerEffectQueryParameters";
+import { DopplerCalculator } from "./DopplerCalculator";
 import { MovableObject, type PositionHistoryPoint } from "./MovableObject";
 import { WaveformManager } from "./WaveformManager";
 import { WaveGenerator } from "./WaveGenerator";

@@ -15,7 +15,7 @@ import {
   type ReadOnlyProperty,
   Vector2,
 } from "scenerystack";
-import { PHYSICS } from "../../../doppler-effect/model/DopplerEffectConstants";
+import { PHYSICS } from "../../../DopplerEffectConstants";
 
 /**
  * Manager for creating and attaching a drag handler to a simulation object

@@ -6,7 +6,7 @@
 
 import { Circle, type Color, type ModelViewTransform2, type Node, type ProfileColorProperty } from "scenerystack";
 import DopplerEffectColors from "../../../DopplerEffectColors";
-import { WAVE } from "../../model/DopplerEffectConstants";
+import { WAVE } from "../../../DopplerEffectConstants";
 import type { Wave } from "../../model/DopplerEffectModel";
 
 /**

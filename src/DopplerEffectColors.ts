@@ -72,6 +72,23 @@ const DopplerEffectColors = {
   // Grid lines
   gridMajorLineColorProperty: profileColor("gridMajorLineColor", new Color(120, 120, 120), new Color(80, 80, 80)),
   gridMinorLineColorProperty: profileColor("gridMinorLineColor", new Color(70, 70, 70), new Color(180, 180, 180)),
+
+  // Fleet-standard panel / text aliases (shared Panel + ButtonOptions modules).
+  panelBackgroundColorProperty: profileColor("panelBackground", new Color(50, 50, 50), new Color(238, 238, 238)),
+  panelBorderColorProperty: profileColor("panelBorder", new Color(150, 150, 150), new Color(210, 210, 210)),
+
+  // ── Light control surfaces ───────────────────────────────────────────────────
+  // White chrome (combo boxes, flat push buttons, editable input fields) stays light
+  // in both profiles; its text stays dark.
+
+  /** Fill of light control surfaces: combo-box button/list, editable input fields. */
+  controlSurfaceColorProperty: profileColor("controlSurface", "#ffffff", "#ffffff"),
+
+  /** Fill of a disabled control surface (grayed-out editable input field). */
+  controlSurfaceDisabledColorProperty: profileColor("controlSurfaceDisabled", "#cccccc", "#cccccc"),
+
+  /** Text on light control surfaces: combo items, flat-button labels, field values, preferences. */
+  controlSurfaceTextColorProperty: profileColor("controlSurfaceText", "#1a1a1a", "#1a1a1a"),
 };
 
 export default DopplerEffectColors;

@@ -15,9 +15,10 @@ import {
   Vector2,
 } from "scenerystack";
 import { ScreenView, type ScreenViewOptions } from "scenerystack/sim";
+import { FLAT_RESET_ALL_BUTTON_OPTIONS } from "../../common/DopplerEffectButtonOptions.js";
 import DopplerEffectColors from "../../DopplerEffectColors";
+import { SCALE } from "../../DopplerEffectConstants";
 import { StringManager } from "../../i18n/StringManager";
-import { SCALE } from "../model/DopplerEffectConstants";
 import { type DopplerEffectModel, Scenario } from "../model/DopplerEffectModel";
 import { ConnectingLineNode } from "./components/ConnectingLineNode";
 // Import components directly
@@ -326,6 +327,7 @@ export class DopplerEffectScreenView extends ScreenView {
     this.controlLayer.addChild(listParentNode);
     // Setup reset all button
     const resetAllButtonNode = new ResetAllButton({
+      ...FLAT_RESET_ALL_BUTTON_OPTIONS,
       listener: () => {
         this.interruptSubtreeInput(); // Stop any ongoing interactions
         model.reset();

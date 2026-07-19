@@ -1,10 +1,12 @@
 /**
  * Fleet-standard memory-leak regression suite.
- * This sim has no dedicated disposable TimeModel; NumberProperty.dispose() is the unit under test.
+ * DopplerCalculator is a pure helper — the dispose/GC unit for this sim's model layer.
  */
 
-import { NumberProperty } from "scenerystack/axon";
+import { Vector2 } from "scenerystack";
 import { describe, expect, it } from "vitest";
+import { DopplerCalculator } from "../src/doppler-effect/model/DopplerCalculator.ts";
+import type { Wave } from "../src/doppler-effect/model/DopplerEffectModel.ts";
 
 async function forceGC(earlyExitRef?: WeakRef<object>): Promise<void> {
   for (let i = 0; i < 15; i++) {
@@ -19,11 +21,18 @@ async function forceGC(earlyExitRef?: WeakRef<object>): Promise<void> {
   }
 }
 
-function createAndDisposeProperty(): WeakRef<object> {
-  const property = new NumberProperty(0);
-  const ref = new WeakRef<object>(property);
-  property.dispose();
-  return ref;
+function createAndDropCalculator(): WeakRef<object> {
+  const calc = new DopplerCalculator();
+  const wave: Wave = {
+    position: new Vector2(0, 0),
+    radius: 0,
+    birthTime: 0,
+    sourceVelocity: new Vector2(0, 0),
+    sourceFrequency: 1000,
+    phaseAtEmission: 0,
+  };
+  calc.calculateObservedFrequency(wave, new Vector2(100, 0), new Vector2(0, 0), 343);
+  return new WeakRef<object>(calc);
 }
 
 describe("Memory leak regression", () => {
@@ -37,25 +46,18 @@ describe("Memory leak regression", () => {
     expect(ref.deref()).toBeUndefined();
   });
 
-  it("NumberProperty is collected after dispose", async () => {
-    const ref = createAndDisposeProperty();
+  it("DopplerCalculator is collected after drop", async () => {
+    const ref = createAndDropCalculator();
     await forceGC(ref);
     expect(ref.deref()).toBeUndefined();
   });
 
-  it("double dispose() does not throw", () => {
-    const property = new NumberProperty(0);
-    property.dispose();
-    expect(() => property.dispose()).not.toThrow();
-  });
-
-  it("repeated create/dispose cycles leave no survivors", async () => {
+  it("repeated create/drop cycles leave no survivors", async () => {
     const refs: WeakRef<object>[] = [];
     for (let i = 0; i < 10; i++) {
-      refs.push(createAndDisposeProperty());
+      refs.push(createAndDropCalculator());
     }
     await forceGC();
-    const survivors = refs.filter((r) => r.deref() !== undefined).length;
-    expect(survivors).toBe(0);
+    expect(refs.filter((r) => r.deref() !== undefined).length).toBe(0);
   });
 });

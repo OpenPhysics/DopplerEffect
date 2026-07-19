@@ -4,7 +4,7 @@ Interactive simulation of the Doppler Effect — visualizes how the frequency of
 
 ## License
 
-GNU Affero General Public License v3.0 or later — see [`LICENSE`](./LICENSE).
+GNU Affero General Public License v3.0 or later — see [org LICENSE](https://github.com/OpenPhysics/.github/blob/main/LICENSE).
 
 ## Acknowledgments
 

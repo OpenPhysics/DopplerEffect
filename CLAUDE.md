@@ -24,6 +24,10 @@ frequency + play state) via the `screenSummaryContent` super-option — replacin
 hard-coded English `descriptionContent` — and orders the PDOM through a wrapper `Node`. A11y
 strings live under the top-level `a11y` key in each locale JSON, via `StringManager.getA11yStrings()`.
 
+## Compliance carve-outs
+
+- **Nested constants:** physics/layout constants live under `src/doppler-effect/model/` (documented screen layout; no root `DopplerEffectConstants.ts` required).
+
 ## Testing
 
 Fleet-standard Vitest layout:

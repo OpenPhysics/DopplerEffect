@@ -9,6 +9,7 @@ import {
   type Bounds2,
   Circle,
   DragListener,
+  KeyboardDragListener,
   type ModelViewTransform2,
   Node,
   Path,
@@ -163,14 +164,24 @@ export class MicrophoneNode extends Node {
     // Position microphone at initial position
     this.center = this.modelViewTransform.modelToViewPosition(this.microphonePositionProperty.value);
 
-    // Add drag listener with proper offset handling
-    const micDragListener = new DragListener({
-      targetNode: this,
-      transform: this.modelViewTransform,
-      positionProperty: this.microphonePositionProperty,
-      dragBoundsProperty: dragBoundsProperty,
-    });
-    this.addInputListener(micDragListener);
+    // Pointer + keyboard drag with proper offset handling
+    this.addInputListener(
+      new DragListener({
+        targetNode: this,
+        transform: this.modelViewTransform,
+        positionProperty: this.microphonePositionProperty,
+        dragBoundsProperty: dragBoundsProperty,
+      }),
+    );
+    this.addInputListener(
+      new KeyboardDragListener({
+        transform: this.modelViewTransform,
+        positionProperty: this.microphonePositionProperty,
+        dragBoundsProperty: dragBoundsProperty,
+        dragSpeed: 100,
+        shiftDragSpeed: 40,
+      }),
+    );
 
     this.microphonePositionProperty.lazyLink(this.updatePosition.bind(this));
 

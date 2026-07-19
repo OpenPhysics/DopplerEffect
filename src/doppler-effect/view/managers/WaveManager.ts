@@ -4,7 +4,7 @@
  * Manages the visualization of propagating waves in the Doppler Effect simulation.
  */
 
-import { Circle, type Color, type ModelViewTransform2, type Node, type ProfileColorProperty } from "scenerystack";
+import { Circle, type ModelViewTransform2, type Node, type ProfileColorProperty } from "scenerystack";
 import DopplerEffectColors from "../../../DopplerEffectColors";
 import { WAVE } from "../../../DopplerEffectConstants";
 import type { Wave } from "../../model/DopplerEffectModel";
@@ -19,7 +19,7 @@ export class WaveManager {
   private readonly modelViewTransform: ModelViewTransform2;
   // Map to track wave nodes
   private readonly waveNodesMap: Map<Wave, Circle> = new Map();
-  private readonly waveColorValue: Color;
+  private readonly waveColorProperty: ProfileColorProperty;
 
   /**
    * Constructor for the WaveManager
@@ -35,15 +35,8 @@ export class WaveManager {
   ) {
     this.waveLayer = waveLayer;
     this.modelViewTransform = modelViewTransform;
-
-    // Store initial color value and listen for changes
-    this.waveColorValue = waveColorProperty.value;
-    waveColorProperty.link((newColor) => {
-      // Update all wave nodes with the new color
-      for (const waveNode of this.waveNodesMap.values()) {
-        waveNode.stroke = newColor;
-      }
-    });
+    // Keep the Property so new and existing waves follow Projector Mode switches.
+    this.waveColorProperty = waveColorProperty;
   }
 
   /**
@@ -53,7 +46,7 @@ export class WaveManager {
    */
   public addWaveNode(wave: Wave): void {
     const waveNode = new Circle(0, {
-      stroke: this.waveColorValue,
+      stroke: this.waveColorProperty,
       fill: null,
       lineWidth: 2,
       opacity: 0.7,

@@ -98,16 +98,23 @@ export class StatusTextNode extends Node {
       },
     );
 
-    // Derived property for shift status text color
+    // Derived property for shift status text color (color props are dependencies so
+    // Projector Mode switches update the fill without a frequency change).
     const shiftStatusFillProperty = new DerivedProperty(
-      [observedFrequencyProperty, emittedFrequencyProperty],
-      (observed, emitted) => {
+      [
+        observedFrequencyProperty,
+        emittedFrequencyProperty,
+        this.blueshiftColorProperty,
+        this.redshiftColorProperty,
+        this.textColorProperty,
+      ],
+      (observed, emitted, blueshift, redshift, textColor) => {
         if (observed > emitted) {
-          return this.blueshiftColorProperty.value;
+          return blueshift;
         } else if (observed < emitted) {
-          return this.redshiftColorProperty.value;
+          return redshift;
         } else {
-          return this.textColorProperty.value;
+          return textColor;
         }
       },
     );

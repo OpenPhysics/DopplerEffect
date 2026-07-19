@@ -3,10 +3,12 @@
  *
  * Initializes SceneryStack with simulation metadata.
  *
- * IMPORTANT: This file is the START of the module loading chain:
- *   init.ts → assert.ts → splash.ts → brand.ts → everything else
+ * IMPORTANT: This file is the START of the EXECUTION chain (deepest import runs first):
+ *   init.ts → assert.ts → splash.ts → brand.ts → main.ts
  *
- * It must run before any other SceneryStack module is imported.
+ * Import nesting is the reverse (main → brand → splash → assert → init).
+ * brand.js must be the first import in main.ts so this file runs before any other
+ * SceneryStack module is imported.
  *
  * ── How to customize ─────────────────────────────────────────────────────────
  * 1. Change `name` to match your package.json "name" field (kebab-case)

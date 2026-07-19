@@ -26,6 +26,7 @@ npm start        # dev server → http://localhost:5173
 |---|---|
 | `npm start` / `npm run dev` | Start Vite dev server |
 | `npm run build` | Type-check + production build → `dist/` |
+| `npm test` | Run Vitest unit tests (includes memory-leak suite) |
 | `npm run preview` | Preview the production build locally |
 | `npm run check` | TypeScript type check |
 | `npm run lint` | Biome lint check |

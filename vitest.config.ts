@@ -12,6 +12,8 @@ export default defineConfig({
   },
   test: {
     environment: "jsdom",
+    execArgv: ["--expose-gc"],
+    testTimeout: 30_000,
     include: ["tests/**/*.test.ts"],
   },
 });

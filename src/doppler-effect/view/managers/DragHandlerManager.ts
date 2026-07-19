@@ -8,6 +8,7 @@ import {
   type Bounds2,
   DerivedProperty,
   DragListener,
+  KeyboardDragListener,
   type ModelViewTransform2,
   type Node,
   Property,
@@ -23,6 +24,7 @@ export class DragHandlerManager {
   private readonly modelViewTransform: ModelViewTransform2;
   private readonly dragBounds: Bounds2;
   private dragListener: DragListener | null = null;
+  private keyboardDragListener: KeyboardDragListener | null = null;
   private dragOffset: Vector2 = new Vector2(0, 0);
   private readonly maxSpeedProperty: ReadOnlyProperty<number>;
 
@@ -101,6 +103,29 @@ export class DragHandlerManager {
 
     // Add the listener to the target node
     targetNode.addInputListener(this.dragListener);
+
+    // Keyboard: nudge desired velocity from arrow keys (same clamp as pointer drag).
+    this.keyboardDragListener = new KeyboardDragListener({
+      transform: this.modelViewTransform,
+      dragSpeed: 60,
+      shiftDragSpeed: 20,
+      start: () => {
+        onSelected();
+      },
+      drag: (_event, listener) => {
+        let desiredVelocity = listener.modelDelta.timesScalar(PHYSICS.POSITION_TO_VELOCITY_FACTOR);
+        if (desiredVelocity.magnitude > this.maxSpeedProperty.value) {
+          desiredVelocity = desiredVelocity.normalized().timesScalar(this.maxSpeedProperty.value);
+        }
+        velocityProperty.value = desiredVelocity;
+        movingProperty.value = desiredVelocity.magnitude > 1e-6;
+      },
+      end: () => {
+        velocityProperty.value = new Vector2(0, 0);
+        movingProperty.value = false;
+      },
+    });
+    targetNode.addInputListener(this.keyboardDragListener);
   }
 
   /**
@@ -111,8 +136,13 @@ export class DragHandlerManager {
       const targetNode = this.dragListener.targetNode;
       if (targetNode) {
         targetNode.removeInputListener(this.dragListener);
+        if (this.keyboardDragListener) {
+          targetNode.removeInputListener(this.keyboardDragListener);
+          this.keyboardDragListener.dispose();
+        }
       }
       this.dragListener = null;
+      this.keyboardDragListener = null;
     }
   }
 }

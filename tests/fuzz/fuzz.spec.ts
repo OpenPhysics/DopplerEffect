@@ -9,10 +9,10 @@
 
 import { expect, test } from "@playwright/test";
 
-const FUZZ_DURATION = parseInt(process.env["FUZZ_DURATION"] || "15", 10) * 1000;
-const FUZZ_SEED = process.env["FUZZ_SEED"] || Math.floor(Math.random() * 1_000_000).toString();
-const FUZZ_RATE = process.env["FUZZ_RATE"] || "100";
-const FUZZ_POINTERS = process.env["FUZZ_POINTERS"] || "1";
+const FUZZ_DURATION: number = parseInt(process.env["FUZZ_DURATION"] || "15", 10) * 1000;
+const FUZZ_SEED: string = process.env["FUZZ_SEED"] || Math.floor(Math.random() * 1_000_000).toString();
+const FUZZ_RATE: string = process.env["FUZZ_RATE"] || "100";
+const FUZZ_POINTERS: string = process.env["FUZZ_POINTERS"] || "1";
 
 interface ConsoleMessage {
   type: string;

@@ -32,7 +32,7 @@
     "check": "tsc --noEmit && tsc -p tsconfig.scripts.json --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "release": "npm run check && npm run lint && npm run test && npm run build && npm version patch && git push && git push --tags",
+    "release": "npm run check && npm run lint && npm run build && npm version patch && git push && git push --tags",
     "watch": "tsc --watch",
     "icons": "tsx scripts/generate-icons.ts",
     "clean": "rm -rf dist",

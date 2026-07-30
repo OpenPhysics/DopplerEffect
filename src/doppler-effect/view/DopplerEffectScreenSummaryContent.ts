@@ -7,7 +7,7 @@
  * and observed frequencies and the play/pause state).
  *
  * Follows the OpenPhysics accessibility convention; see the canonical
- * TemplateSingleSim/DopplerEffectScreenSummaryContent.ts.
+ * SceneryStackTemplate/DopplerEffectScreenSummaryContent.ts.
  */
 
 import { DerivedProperty } from "scenerystack/axon";

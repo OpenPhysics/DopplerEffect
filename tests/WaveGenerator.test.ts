@@ -145,7 +145,11 @@ describe("WaveGenerator.detectWaveAt", () => {
     let detected = false;
     for (let i = 1; i <= 1200; i++) {
       time = i * dt;
-      waves.get(0).radius += dt * soundSpeed;
+      const wave = waves.get(0);
+      if (wave === undefined) {
+        throw new Error("test fixture: expected wave at index 0");
+      }
+      wave.radius += dt * soundSpeed;
       if (generator.detectWaveAt(micPosition, time, dt)) {
         detected = true;
         break;

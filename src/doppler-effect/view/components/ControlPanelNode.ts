@@ -96,7 +96,12 @@ export class ControlPanelNode extends Node {
     ];
 
     // Create vertical checkbox group
-    const checkboxGroup = new VerticalCheckboxGroup(items);
+    const checkboxGroup = new VerticalCheckboxGroup(items, {
+      checkboxOptions: {
+        checkboxColor: DopplerEffectColors.controlPanelTextColorProperty,
+        checkboxColorBackground: DopplerEffectColors.controlPanelBackgroundColorProperty,
+      },
+    });
 
     // Create sound speed control
     const a11y = this.stringManager.getA11yStrings();

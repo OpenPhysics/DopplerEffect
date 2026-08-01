@@ -8,13 +8,12 @@
 import {
   type Bounds2,
   Circle,
-  DragListener,
-  KeyboardDragListener,
   type ModelViewTransform2,
   Node,
   Path,
   type Property,
   Rectangle,
+  RichDragListener,
   Shape,
   type TReadOnlyProperty,
   type Vector2,
@@ -164,22 +163,19 @@ export class MicrophoneNode extends Node {
     // Position microphone at initial position
     this.center = this.modelViewTransform.modelToViewPosition(this.microphonePositionProperty.value);
 
-    // Pointer + keyboard drag with proper offset handling
+    // Pointer + keyboard drag via one RichDragListener (model coords via transform).
     this.addInputListener(
-      new DragListener({
-        targetNode: this,
+      new RichDragListener({
         transform: this.modelViewTransform,
         positionProperty: this.microphonePositionProperty,
         dragBoundsProperty: dragBoundsProperty,
-      }),
-    );
-    this.addInputListener(
-      new KeyboardDragListener({
-        transform: this.modelViewTransform,
-        positionProperty: this.microphonePositionProperty,
-        dragBoundsProperty: dragBoundsProperty,
-        dragSpeed: 100,
-        shiftDragSpeed: 40,
+        dragListenerOptions: {
+          targetNode: this,
+        },
+        keyboardDragListenerOptions: {
+          dragSpeed: 100,
+          shiftDragSpeed: 40,
+        },
       }),
     );
 

@@ -2,17 +2,18 @@
  * DragHandlerManager.ts
  *
  * Manages a single drag handler for an object in the Doppler Effect simulation.
+ * Dragging sets desired velocity from pointer/keyboard direction (not 1:1 position) —
+ * a skill "custom mapping" case wrapped in one RichDragListener for a11y.
  */
 
 import {
   type Bounds2,
   DerivedProperty,
-  DragListener,
-  KeyboardDragListener,
   type ModelViewTransform2,
   type Node,
   Property,
   type ReadOnlyProperty,
+  RichDragListener,
   Vector2,
 } from "scenerystack";
 import { PHYSICS } from "../../../DopplerEffectConstants";
@@ -23,8 +24,7 @@ import { PHYSICS } from "../../../DopplerEffectConstants";
 export class DragHandlerManager {
   private readonly modelViewTransform: ModelViewTransform2;
   private readonly dragBounds: Bounds2;
-  private dragListener: DragListener | null = null;
-  private keyboardDragListener: KeyboardDragListener | null = null;
+  private richDragListener: RichDragListener | null = null;
   private dragOffset: Vector2 = new Vector2(0, 0);
   private readonly maxSpeedProperty: ReadOnlyProperty<number>;
 
@@ -64,85 +64,65 @@ export class DragHandlerManager {
     movingProperty: Property<boolean>,
     onSelected: () => void,
   ): void {
-    // Create the drag listener
-    this.dragListener = new DragListener({
-      targetNode: targetNode,
-      dragBoundsProperty: new Property(this.dragBounds),
-      allowTouchSnag: true,
-      start: (event) => {
-        onSelected();
+    const clampVelocity = (desiredVelocity: Vector2): Vector2 => {
+      if (desiredVelocity.magnitude > this.maxSpeedProperty.value) {
+        return desiredVelocity.normalized().timesScalar(this.maxSpeedProperty.value);
+      }
+      return desiredVelocity;
+    };
 
-        // Store the initial offset between pointer and object position
-        const viewPosition = this.modelViewTransform.modelToViewPosition(positionProperty.value);
-        this.dragOffset = viewPosition.minus(event.pointer.point);
-      },
-      drag: (event) => {
-        // Convert view coordinates to model coordinates, accounting for initial offset
-        const viewPoint = event.pointer.point.plus(this.dragOffset);
-        const modelPoint = this.modelViewTransform.viewToModelPosition(viewPoint);
-
-        // Calculate position difference (direction to target)
-        const positionDifference = modelPoint.minus(positionProperty.value);
-
-        // Convert position difference to velocity using a scaling factor
-        // This factor represents 1/time and converts distance to distance/time
-        let desiredVelocity = positionDifference.timesScalar(PHYSICS.POSITION_TO_VELOCITY_FACTOR);
-
-        // Limit velocity to maximum speed. normalize() mutates in place and timesScalar()
-        // returns a new vector, so the clamped result must be reassigned (otherwise the
-        // velocity collapses to a unit vector instead of being scaled to the max speed).
-        if (desiredVelocity.magnitude > this.maxSpeedProperty.value) {
-          desiredVelocity = desiredVelocity.normalized().timesScalar(this.maxSpeedProperty.value);
-        }
-
-        // Apply velocity
-        velocityProperty.value = desiredVelocity;
-        movingProperty.value = true;
-      },
-    });
-
-    // Add the listener to the target node
-    targetNode.addInputListener(this.dragListener);
-
-    // Keyboard: nudge desired velocity from arrow keys (same clamp as pointer drag).
-    this.keyboardDragListener = new KeyboardDragListener({
+    // Custom mapping: drag direction → velocity (not positionProperty writes).
+    this.richDragListener = new RichDragListener({
       transform: this.modelViewTransform,
-      dragSpeed: 60,
-      shiftDragSpeed: 20,
-      start: () => {
-        onSelected();
+      dragListenerOptions: {
+        targetNode: targetNode,
+        dragBoundsProperty: new Property(this.dragBounds),
+        allowTouchSnag: true,
+        start: (event) => {
+          onSelected();
+          const viewPosition = this.modelViewTransform.modelToViewPosition(positionProperty.value);
+          this.dragOffset = viewPosition.minus(event.pointer.point);
+        },
+        drag: (event) => {
+          const viewPoint = event.pointer.point.plus(this.dragOffset);
+          const modelPoint = this.modelViewTransform.viewToModelPosition(viewPoint);
+          const positionDifference = modelPoint.minus(positionProperty.value);
+          velocityProperty.value = clampVelocity(positionDifference.timesScalar(PHYSICS.POSITION_TO_VELOCITY_FACTOR));
+          movingProperty.value = true;
+        },
       },
-      drag: (_event, listener) => {
-        let desiredVelocity = listener.modelDelta.timesScalar(PHYSICS.POSITION_TO_VELOCITY_FACTOR);
-        if (desiredVelocity.magnitude > this.maxSpeedProperty.value) {
-          desiredVelocity = desiredVelocity.normalized().timesScalar(this.maxSpeedProperty.value);
-        }
-        velocityProperty.value = desiredVelocity;
-        movingProperty.value = desiredVelocity.magnitude > 1e-6;
-      },
-      end: () => {
-        velocityProperty.value = new Vector2(0, 0);
-        movingProperty.value = false;
+      keyboardDragListenerOptions: {
+        dragSpeed: 60,
+        shiftDragSpeed: 20,
+        start: () => {
+          onSelected();
+        },
+        drag: (_event, listener) => {
+          const desiredVelocity = clampVelocity(listener.modelDelta.timesScalar(PHYSICS.POSITION_TO_VELOCITY_FACTOR));
+          velocityProperty.value = desiredVelocity;
+          movingProperty.value = desiredVelocity.magnitude > 1e-6;
+        },
+        end: () => {
+          velocityProperty.value = new Vector2(0, 0);
+          movingProperty.value = false;
+        },
       },
     });
-    targetNode.addInputListener(this.keyboardDragListener);
+
+    targetNode.addInputListener(this.richDragListener);
   }
 
   /**
    * Remove the drag handler from its target node
    */
   public detachDragHandler(): void {
-    if (this.dragListener) {
-      const targetNode = this.dragListener.targetNode;
+    if (this.richDragListener) {
+      const targetNode = this.richDragListener.dragListener.targetNode;
       if (targetNode) {
-        targetNode.removeInputListener(this.dragListener);
-        if (this.keyboardDragListener) {
-          targetNode.removeInputListener(this.keyboardDragListener);
-          this.keyboardDragListener.dispose();
-        }
+        targetNode.removeInputListener(this.richDragListener);
+        this.richDragListener.dispose();
       }
-      this.dragListener = null;
-      this.keyboardDragListener = null;
+      this.richDragListener = null;
     }
   }
 }

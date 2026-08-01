@@ -25,21 +25,26 @@
  *   const panel = new DopplerEffectPanel(content, { fill: "transparent" });
  */
 
+import { type EmptySelfOptions, optionize } from "scenerystack/phet-core";
 import type { Node } from "scenerystack/scenery";
-import type { PanelOptions } from "scenerystack/sun";
-import { Panel } from "scenerystack/sun";
+import { Panel, type PanelOptions } from "scenerystack/sun";
 import DopplerEffectColors from "../DopplerEffectColors.js";
 import { PANEL_CORNER_RADIUS } from "../DopplerEffectConstants.js";
 
+export type DopplerEffectPanelOptions = PanelOptions;
+
 export class DopplerEffectPanel extends Panel {
-  public constructor(content: Node, providedOptions?: PanelOptions) {
-    super(content, {
-      fill: DopplerEffectColors.panelBackgroundColorProperty,
-      stroke: DopplerEffectColors.panelBorderColorProperty,
-      cornerRadius: PANEL_CORNER_RADIUS,
-      xMargin: 12,
-      yMargin: 10,
-      ...providedOptions,
-    });
+  public constructor(content: Node, providedOptions?: DopplerEffectPanelOptions) {
+    const options = optionize<DopplerEffectPanelOptions, EmptySelfOptions, PanelOptions>()(
+      {
+        fill: DopplerEffectColors.panelBackgroundColorProperty,
+        stroke: DopplerEffectColors.panelBorderColorProperty,
+        cornerRadius: PANEL_CORNER_RADIUS,
+        xMargin: 12,
+        yMargin: 10,
+      },
+      providedOptions,
+    );
+    super(content, options);
   }
 }

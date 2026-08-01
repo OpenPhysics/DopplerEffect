@@ -14,6 +14,7 @@ import {
   type TReadOnlyProperty,
   Vector2,
 } from "scenerystack";
+import { type EmptySelfOptions, optionize } from "scenerystack/phet-core";
 import { ScreenView, type ScreenViewOptions } from "scenerystack/sim";
 import { FLAT_RESET_ALL_BUTTON_OPTIONS } from "../../common/DopplerEffectButtonOptions.js";
 import DopplerEffectColors from "../../DopplerEffectColors";
@@ -60,6 +61,8 @@ const UI = {
  * - Model space: Physical coordinates in meters (±100m in both dimensions)
  * - View space: Screen coordinates in pixels
  */
+export type DopplerEffectScreenViewOptions = ScreenViewOptions;
+
 export class DopplerEffectScreenView extends ScreenView {
   // Model reference
   private readonly model: DopplerEffectModel;
@@ -112,17 +115,20 @@ export class DopplerEffectScreenView extends ScreenView {
   /**
    * Constructor for the Doppler Effect DopplerEffectScreenView
    */
-  public constructor(model: DopplerEffectModel, options?: ScreenViewOptions) {
+  public constructor(model: DopplerEffectModel, providedOptions?: DopplerEffectScreenViewOptions) {
     // Call super first before accessing any instance properties
-    super({
-      tagName: "div",
-      labelTagName: "h1",
-      labelContent: StringManager.getInstance().getTitleStringProperty(),
-      // Localized, structured screen summary (replaces the previous hard-coded
-      // English descriptionContent). Current details are derived live from the model.
-      screenSummaryContent: new DopplerEffectScreenSummaryContent(model),
-      ...options,
-    });
+    const options = optionize<DopplerEffectScreenViewOptions, EmptySelfOptions, ScreenViewOptions>()(
+      {
+        tagName: "div",
+        labelTagName: "h1",
+        labelContent: StringManager.getInstance().getTitleStringProperty(),
+        // Localized, structured screen summary (replaces the previous hard-coded
+        // English descriptionContent). Current details are derived live from the model.
+        screenSummaryContent: new DopplerEffectScreenSummaryContent(model),
+      },
+      providedOptions,
+    );
+    super(options);
 
     this.model = model;
 

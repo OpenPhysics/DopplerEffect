@@ -126,6 +126,8 @@ export default defineConfig(({ mode }) => {
     build: {
       // Requires Vite 8+ / esbuild ≥0.24. Run `npm ci` if build errors on ES2024.
       target: "es2024",
+      // SceneryStack bundles exceed Vite's default 500 kB chunk warning.
+      chunkSizeWarningLimit: 5000,
       ...(single && {
         // Inline every imported asset as a base64 data URI instead of emitting files.
         assetsInlineLimit: 100_000_000,

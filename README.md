@@ -1,5 +1,7 @@
 # Doppler Effect Simulation
 
+[![CI](https://github.com/OpenPhysics/DopplerEffect/actions/workflows/ci.yml/badge.svg)](https://github.com/OpenPhysics/DopplerEffect/actions/workflows/ci.yml)
+
 An interactive simulation of the Doppler Effect built with [SceneryStack](https://scenerystack.org/). Explore
 how observed sound frequency shifts when source and observer move relative to each other.
 

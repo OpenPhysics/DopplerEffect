@@ -12,8 +12,9 @@ export default defineConfig({
   },
   test: {
     environment: "jsdom",
+    include: ["tests/**/*.test.ts"],
+    // --expose-gc lets us call global.gc() to force garbage collection
     execArgv: ["--expose-gc"],
     testTimeout: 30_000,
-    include: ["tests/**/*.test.ts"],
   },
 });

@@ -11,7 +11,7 @@ export default defineConfig({
     timeout: 10_000,
   },
   fullyParallel: false,
-  forbidOnly: !!process.env.CI,
+  forbidOnly: !!process.env["CI"],
   retries: 0,
   workers: 1,
   reporter: [["list"], ["html", { open: "never" }]],
@@ -24,7 +24,7 @@ export default defineConfig({
   webServer: {
     command: "npm run start",
     url: "http://localhost:5173",
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: !process.env["CI"],
     timeout: 120_000,
   },
   projects: [

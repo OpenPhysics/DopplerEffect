@@ -180,7 +180,7 @@ export class KeyboardShortcutsNode extends Node {
 
     // Create standard basic actions section (includes tab navigation, space/enter, etc.)
     // NOTE: theming the inner text of this standard section with the sim's text color profile is
-    // not yet wired up. Tracked in https://github.com/OpenPhysics/DopplerEffect/issues/26
+    // not yet wired up. Tracked in https://github.com/OpenLyceum/DopplerEffect/issues/26
     const basicActionsSection = new BasicActionsKeyboardHelpSection({
       withCheckboxContent: true,
       textMaxWidth: TEXT_MAX_WIDTH,

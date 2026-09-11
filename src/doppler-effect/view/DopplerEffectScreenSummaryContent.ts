@@ -6,7 +6,7 @@
  * and exposes a LIVE "current details" paragraph derived from the model (emitted
  * and observed frequencies and the play/pause state).
  *
- * Follows the OpenPhysics accessibility convention; see the canonical
+ * Follows the OpenLyceum accessibility convention; see the canonical
  * SceneryStackTemplate/DopplerEffectScreenSummaryContent.ts.
  */
 

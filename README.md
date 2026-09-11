@@ -1,6 +1,6 @@
 # Doppler Effect Simulation
 
-[![CI](https://github.com/OpenPhysics/DopplerEffect/actions/workflows/ci.yml/badge.svg)](https://github.com/OpenPhysics/DopplerEffect/actions/workflows/ci.yml)
+[![CI](../../actions/workflows/ci.yml/badge.svg)](../../actions/workflows/ci.yml)
 
 An interactive simulation of the Doppler Effect built with [SceneryStack](https://scenerystack.org/). Explore
 how observed sound frequency shifts when source and observer move relative to each other.
@@ -49,9 +49,9 @@ npm start        # dev server → http://localhost:5173
 
 ## License
 
-GNU Affero General Public License v3.0 — see [OpenPhysics org license](https://github.com/OpenPhysics/.github/blob/main/LICENSE).
+GNU Affero General Public License v3.0 — see [OpenLyceum org license](https://github.com/OpenLyceum/.github/blob/main/LICENSE).
 
 ## Contributing
 
-See [OpenPhysics contributing guidelines](https://github.com/OpenPhysics/.github/blob/main/CONTRIBUTING.md).
+See [OpenLyceum contributing guidelines](https://github.com/OpenLyceum/.github/blob/main/CONTRIBUTING.md).
 Report bugs via GitHub Issues; use org issue templates.
